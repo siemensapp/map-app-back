@@ -13,9 +13,10 @@ const options = {
 
 
 const startingMongoDB = () => {    
-    const adress = process.env.DOCKER_DEPLOY? 'sa-bot-db': '127.0.0.1';    
+    const address = process.env.DOCKER_DEPLOY? 'field-test': '127.0.0.1';    
     const database = process.env.DATABASE? process.env.DATABASE:'27017';
-    mongoose.connect(`mongodb://${adress}:${database}/field-test`, options, (err) => {
+    //mongoose.connect(`mongodb://${adress}:${database}/field-test`, options, (err) => {
+    mongoose.connect(`mongodb://${address}:${database}/field-test`, options, (err) => {
         if(err) {
             console.log('Not connected to field-test')
             setTimeout(startingMongoDB, 5000)

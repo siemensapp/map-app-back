@@ -22,6 +22,7 @@ router.get("/position/:id", async (req, res, err) => {
     await res.json({
         data: pos
     })
+    console.log("Documentos enviados: \n");
 });
 
 
