@@ -1,37 +1,49 @@
 const express = require('express');
 const request = require('request');
+const mysql = require('mysql');
 
 const router = express.Router();
 
-// const agentPosition = new mongoose.Schema({
-//     id : String,
-//     latitude: String,
-//     longitude: String,
-//     timestamp: Date
-// });
+var con;
 
-// const Position = mongoose.model('position', agentPosition, 'position');
+const startingMysql = () => {
+    con = mysql.createConnection({
+        host: 'localhost',
+        database: 'fieldservice',
+        user: 'root',
+        password: 'admin',
+        insecureAuth: true
+    });
+
+    con.connect((err) => {
+        if (err) {
+            console.log("Not connected to Mysql, Retrying ...");
+            //console.log(err);
+            setTimeout(startingMysql, 5000);
+        } else {
+            console.log("Connected to Mysql!");
+        }
+    });
+}
 
 
-router.get("/workers", async (req, res, err) => {
-    // if (err) {console.log("Hubo un error:", err)}
-    // console.log("URL ID: " + req.params.id);
-    // const pos = await Position.find({id: req.params.id}).select({ latitude:1 , longitude:1, timestamp:1 });
-    // console.log("Los documentos: \n", pos);
-    // await res.json({
-    //     data: pos
-    // })
-    // console.log("Documentos enviados: \n");
 
-    res.json({
-        data: "Hola Mundo get workers"
-    })
+router.get("/workers", (req, res, err) => {
+    console.log("Connected to get")
+    var workersQuery;
+    con.query("select Especialista.Nombre, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and curdate() between fechainicio and fechafin", (error, result, fields) => {
+        if (error) throw error;
+        workersQuery = result;
+        console.log(workersQuery);
+        res.json(workersQuery);
+    }),     
+    console.log("Done with get")
 });
 
 
 
 // router.post('/labs/search', async (req, res) => {
-    
+
 //     var count = await Labs.countDocuments({}, (err, count) => { return count})
 //     if(count == 0) {
 //         console.log('load files to toxlabs')
@@ -54,7 +66,7 @@ router.get("/workers", async (req, res, err) => {
 //             content: `Esto fue lo que encontre.`
 //         }]
 //     })
-    
+
 //     var headers = {
 //         'Content-Type' : 'application/json',
 //         'Authorization' : 'Token bc6a6c225d77a9e9a27d173f4458b4bb'
@@ -98,14 +110,14 @@ router.get("/workers", async (req, res, err) => {
 //                 'Content-Type' : 'application/json',
 //                 'Authorization' : 'Token bc6a6c225d77a9e9a27d173f4458b4bb'
 //             }
-        
+
 //             var options = {
 //                 url: `https://api.recast.ai/connect/v1/conversations/${conversation_id}/messages`,
 //                 method: 'POST',
 //                 headers: headers,
 //                 form: {'messages': [{ type: 'text', content: `Tu pregunta fue guardada exitosamente !`}]}
 //             }
-        
+
 //             request(options, (error, res, body) => {
 //                 if (!error && res.statusCode == 201){
 //                     console.log('Made it')
@@ -113,4 +125,4 @@ router.get("/workers", async (req, res, err) => {
 //             })            
 //         })
 // })
-module.exports = router
+module.exports = { router, startingMysql };
