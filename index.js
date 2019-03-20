@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const api = require('./general-api');
-const startServer = require('./mongo-connection');
+const startServer = require('./mysql-connection');
 
 const app = express();
 app.use(bodyParser.json());

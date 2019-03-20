@@ -9,9 +9,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@mysql/xdevapi": "file:../../../../Users/Z0041MKM/Downloads/mysql-connector-nodejs-8.0.15.tar.gz",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "mongoose": "^5.4.19",
+    "mysql": "^2.16.0",
     "request": "^2.88.0"
   }
 }

@@ -1,28 +1,31 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const request = require('request');
 
 const router = express.Router();
 
-const agentPosition = new mongoose.Schema({
-    id : String,
-    latitude: String,
-    longitude: String,
-    timestamp: Date
-});
+// const agentPosition = new mongoose.Schema({
+//     id : String,
+//     latitude: String,
+//     longitude: String,
+//     timestamp: Date
+// });
 
-const Position = mongoose.model('position', agentPosition, 'position');
+// const Position = mongoose.model('position', agentPosition, 'position');
 
 
-router.get("/position/:id", async (req, res, err) => {
-    if (err) {console.log("Hubo un error:", err)}
-    console.log("URL ID: " + req.params.id);
-    const pos = await Position.find({id: req.params.id}).select({ latitude:1 , longitude:1, timestamp:1 });
-    console.log("Los documentos: \n", pos);
-    await res.json({
-        data: pos
+router.get("/workers", async (req, res, err) => {
+    // if (err) {console.log("Hubo un error:", err)}
+    // console.log("URL ID: " + req.params.id);
+    // const pos = await Position.find({id: req.params.id}).select({ latitude:1 , longitude:1, timestamp:1 });
+    // console.log("Los documentos: \n", pos);
+    // await res.json({
+    //     data: pos
+    // })
+    // console.log("Documentos enviados: \n");
+
+    res.json({
+        data: "Hola Mundo get workers"
     })
-    console.log("Documentos enviados: \n");
 });
 
 
