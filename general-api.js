@@ -1,6 +1,7 @@
 const express = require('express');
 const request = require('request');
 const mysql = require('mysql');
+const cors = require('cors');
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ const startingMysql = () => {
     });
 }
 
-
+router.use(cors());
 
 router.get("/workers", (req, res, err) => {
     console.log("Connected to get")
