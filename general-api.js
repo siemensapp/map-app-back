@@ -32,13 +32,25 @@ router.use(cors());
 router.get("/workers", (req, res, err) => {
     console.log("Connected to get")
     var workersQuery;
-    con.query("select Especialista.Nombre, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and curdate() between fechainicio and fechafin", (error, result, fields) => {
+    con.query("select Especialista.NombreE, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and curdate() between fechainicio and fechafin", (error, result, fields) => {
         if (error) throw error;
         workersQuery = result;
         console.log(workersQuery);
         res.json(workersQuery);
     }),     
     console.log("Done with get")
+});
+
+router.get("/workersList", (req, res, err) => {
+    console.log("Connected to get all List")
+    var workersQuery;
+    con.query("SELECT Especialista.NombreE, Especialista.Celular, Tecnica.NombreT, Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE CURDATE() BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin", (error, result, fields) => {
+        if (error) throw error;
+        workersQuery = result;
+        console.log(workersQuery);
+        res.json(workersQuery);
+    }),     
+    console.log("Done with get all List")
 });
 
 
