@@ -41,16 +41,52 @@ router.get("/workers", (req, res, err) => {
     console.log("Done with get")
 });
 
+router.get("/allWorkers", (req, res, err) => {
+    console.log("Connected to get")
+    var workersQuery;
+    con.query("select NombreE, IdEspecialista from Especialista", (error, result, fields) => {
+        if (error) throw error;
+        workersQuery = result;
+        console.log(workersQuery);
+        res.json(workersQuery);
+    }),     
+    console.log("Done with get")
+});
+
+
 router.get("/workersList", (req, res, err) => {
     console.log("Connected to get all List")
     var workersQuery;
-    con.query("SELECT Especialista.NombreE, Especialista.Celular, Tecnica.NombreT, Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE CURDATE() BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin", (error, result, fields) => {
+    con.query("SELECT Especialista.NombreE, Especialista.Celular, Especialista.IdEspecialista, Tecnica.NombreT, Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE CURDATE() BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin", (error, result, fields) => {
         if (error) throw error;
         workersQuery = result;
         console.log(workersQuery);
         res.json(workersQuery);
     }),     
     console.log("Done with get all List")
+});
+
+router.post("/setAssignment", (req, res, err) => {
+    console.log(req.body);
+    // con.query("INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion)", (error, result, fields) =>{
+    //     if(error) throw error;    
+    // })   
+    res.json("Done with post");
+});
+
+router.get("/deleteWorker/:workerId", (req, res, err) => {
+    if(err) throw err;
+    console.log("Entered delete");
+    console.log(req.params.workerId);
+    con.query("delete from Especialista Where IdEspecialista=" + req.params.workerId + ";", (error, result, fields) => {
+        if(error) throw error;
+        console.log("Borrado ese perro");
+        res.json("se pudo");        
+    })
+    // con.query("INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion)", (error, result, fields) =>{
+    //     if(error) throw error;    
+    // })   
+    res.json("Done with delete");
 });
 
 
