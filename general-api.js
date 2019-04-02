@@ -1,7 +1,10 @@
 const express = require('express');
-const request = require('request');
 const mysql = require('mysql');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const variables = require('./variables');
+
 
 const router = express.Router();
 
@@ -44,7 +47,7 @@ router.get("/workers", (req, res, err) => {
 router.get("/allWorkers", (req, res, err) => {
     console.log("Connected to get")
     var workersQuery;
-    con.query("select NombreE, IdEspecialista from Especialista", (error, result, fields) => {
+    con.query("select NombreE, IdEspecialista, Foto from Especialista", (error, result, fields) => {
         if (error) throw error;
         workersQuery = result;
         console.log(workersQuery);
@@ -89,7 +92,50 @@ router.get("/deleteWorker/:workerId", (req, res, err) => {
     res.json("Done with delete");
 });
 
+router.post("/createWorker", (req, res, err) => {
+    // console.log(req.body);
+    // con.query("INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion)", (error, result, fields) =>{
+    //     if(error) throw error;    
+    // })
 
+    // Saving image to disk
+
+    //if (err) throw err;
+    let data = req.body;
+
+    // image path
+    let base64String = data.Foto;
+    let base64Image = base64String.split(';base64,').pop();   
+
+    let IdEspecialista = data.IdEspecialista;
+    let NombreE = data.NombreE;
+    let Celular = data.Celular;
+    let IdTecnica = data.IdTecnica;
+    let FechaNacimiento = data.fechaNacimiento;
+    let CeCo = data.CeCo;
+    let GID = data.GID;
+    let CedulaCiudadania = data.CedulaCiudadania;
+    let LugarExpedicion = data.LugarExpedicion;
+    let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
+    // Image route
+    //let imagePath = path.join(variables.serverDirectoryWin, 'images', data.NombreE + ".jpg"); 
+    let imagePath = variables.serverDirectoryWin + 'images\\\\'+ data.NombreE + ".jpg"; 
+    console.log(imagePath);
+
+    var query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" +  NombreE + "','" +  TarjetaIngresoArgos + "','" +  Celular + "','" +  GID + "','" +  CedulaCiudadania + "','" +  LugarExpedicion + "','" +  FechaNacimiento + "'," +  IdTecnica + ",'" + imagePath + "')";
+
+    con.query(query, (error, result, fields) =>{
+        if(error) throw error;
+        fs.writeFile(imagePath, base64Image, {encoding: 'base64'}, (err) => {
+            if (err) console.log('\nError al guardar imagen\n');
+            console.log("\nImage created !!\n");
+        })
+        res.json("Worker created !!");
+    })
+
+
+    
+});
 
 // router.post('/labs/search', async (req, res) => {
 
