@@ -30,24 +30,55 @@ const startingMysql = () => {
     });
 }
 
+// Configurar mas tarde
 router.use(cors());
 
+/* ------------------------- FUNCIONES AUXILIARES --------------------------------  */
+
+function saveImage (imagePath, base64Image){
+    return new Promise(resolve => {
+        fs.writeFile(path.normalize(imagePath), base64Image, { encoding: 'base64'}, (err) => {
+            // Revisa si la imagen fue 
+            if(err) console.log("Error antes de verificacion", err);
+            fs.access(path.normalize(imagePath), fs.constants.F_OK, (error) => {
+                let result = (error) ? "false" : "true";
+                console.log("Result File Exists?", result);
+                resolve(result);
+            })
+        })
+    })
+}
+
+// Funcion que transforma una imagen existente en una cadena de base64
+function convertBase64 (singleWorker) {
+    console.log("Convert base 64:", singleWorker.Foto);
+    let pathFoto = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images\\\\default-user.png")
+    let bitmap = fs.readFileSync(path.normalize(pathFoto));
+    return new Buffer(bitmap).toString('base64');
+}
+
+/* -------------------------------- ENDPOINTS -------------------------------------  */
+
+// router.post()
+
+
+// Trae datos de trabajadores en servicio para poner los puntos en el mapa
 router.get("/workers", (req, res, err) => {
     console.log("Connected to get")
-    var workersQuery;
-    con.query("select Especialista.NombreE, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and curdate() between fechainicio and fechafin", (error, result, fields) => {
+    var workersQuery, query = "select Especialista.NombreE, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and curdate() between fechainicio and fechafin";
+    con.query(query, (error, result, fields) => {
             if (error) throw error;
             workersQuery = result;
-            console.log(workersQuery);
             res.json(workersQuery);
         }),
         console.log("Done with get")
 });
 
+// Trae datos para llenar opciones del componente de asignacion
 router.get("/allWorkers", (req, res, err) => {
     console.log("Connected to get")
     var workersQuery;
-    con.query("select NombreE, IdEspecialista, Foto from Especialista", (error, result, fields) => {
+    con.query("select NombreE, IdEspecialista from Especialista", (error, result, fields) => {
             if (error) throw error;
             workersQuery = result;
             console.log(workersQuery);
@@ -56,7 +87,7 @@ router.get("/allWorkers", (req, res, err) => {
         console.log("Done with get")
 });
 
-
+// Trae los detalles de los trabajadores a la lista de usuarios, se prepara para la edicion.
 router.get("/workersList", (req, res, err) => {
     console.log("Connected to get all List")
     var workersQuery;
@@ -64,77 +95,45 @@ router.get("/workersList", (req, res, err) => {
             if (error) throw error;
             workersQuery = result;
             for (let worker of workersQuery) {
-
-                function convertBase64(singleWorker) {
-                    if (singleWorker.Foto) {
-                        let pathFoto = singleWorker.Foto;
-                        let bitmap = fs.readFileSync(path.normalize(pathFoto));
-                        return new Buffer(bitmap).toString('base64');
-                    }
-                    return "";
-                }
                 worker["FotoBase64"] = convertBase64(worker);
             }
-            console.log(workersQuery);
             res.json(workersQuery);
         }),
         console.log("Done with get all List")
 });
 
+// Crea asignacion 
 router.post("/setAssignment", (req, res, err) => {
-    console.log(req.body);
-    // con.query("INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion)", (error, result, fields) =>{
-    //     if(error) throw error;    
-    // })   
-    res.json("Done with post");
+    let data = req.body;
+
+    let IdEspecialista = data.IdEspecialista;
+    let IdStatus = data.IdStatus;
+    let FechaInicio = data.FechaInicio;
+    let FechaFin = data.FechaFin;
+    let NombreContacto = data.NombreContacto;
+    let TelefonoContacto = data.TelefonoContacto;
+    let Descripcion = data.Descripcion;
+    let CoordenadasSitio = data.CoordenadasSitio;
+    let NombreSitio = data.NombreSitio;
+    con.query("INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion) VALUES(" + IdEspecialista + ", " + IdStatus + ", '" + FechaInicio + "', '" + FechaFin + "', '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + Descripcion + "')", (error, result, fields) => {
+        res.json((error)? "false": "true");
+    })
 });
 
+
+
+// Borra usuario dado un id y tambien sus asignaciones
 router.get("/deleteWorker/:workerId", (req, res, err) => {
-    if (err) throw err;
     console.log("Entered delete");
     console.log(req.params.workerId);
     con.query("delete from Especialista Where IdEspecialista=" + req.params.workerId + ";", (error, result, fields) => {
-        if (error) throw error;
-        console.log("Borrado ese perro");
-        res.json("se pudo");
+        res.json( (error)? "false": "true" )
     })
-    res.json("Done with delete");
 });
 
+// Crea nuevos trabajadores
 router.post("/createWorker", (req, res, err) => {
     let data = req.body;
-
-    // image path
-    let base64String = data.Foto;
-    let base64Image = base64String.split(';base64,').pop();
-
-    let IdEspecialista = data.IdEspecialista;
-    let NombreE = data.NombreE;
-    let Celular = data.Celular;
-    let IdTecnica = data.IdTecnica;
-    let FechaNacimiento = data.FechaNacimiento;
-    let CeCo = data.CeCo;
-    let GID = data.GID;
-    let CedulaCiudadania = data.CedulaCiudadania;
-    let LugarExpedicion = data.LugarExpedicion;
-    let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
-    let imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
-    console.log(imagePath);
-
-    var query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath + "')";
-
-    con.query(query, (error, result, fields) => {
-        if (error) throw error;
-        res.json( saveImage(imagePath, base64Image) ? "Image saved !" : "There was an error with the image" );
-    })
-});
-
-router.post("/editWorker", (req, res, err) => {
-    let data = req.body;
-
-    // image path
-    let base64String = data.Foto;
-    let base64Image = base64String.split(';base64,').pop();
 
     let IdEspecialista = data.IdEspecialista;
     let NombreE = data.NombreE;
@@ -147,111 +146,60 @@ router.post("/editWorker", (req, res, err) => {
     let LugarExpedicion = data.LugarExpedicion;
     let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
     // Image route
-    //let imagePath = path.join(variables.serverDirectoryWin, 'images', data.NombreE + ".jpg"); 
-    let imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
+    let base64String ,base64Image, imagePath;
+    var query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + "')";
+    if (data.Foto) {
+        base64String = data.Foto;
+        base64Image = base64String.split(';base64,').pop();
+        imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
+        query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath + "')";
+    }
     console.log(imagePath);
+    con.query(query, async (error, result, fields) => {
+        if(data.Foto) {
+            saveImage(imagePath, base64Image).then((imageResult) => {
+                console.log(imageResult)
+                res.json(imageResult);
+            })
+        } else res.json( (error)? "false": "true");
+    })
+});
 
-    var query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "' WHERE IdEspecialista=" + IdEspecialista;
-    console.log(query);
+// Sirve para editar usuarios ya existentes
+router.post("/editWorker", (req, res, err) => {
+    let data = req.body;
 
-    con.query(query, (error, result, fields) => {
-        if (error) throw error;
-        res.json( saveImage(imagePath, base64Image) ? "Image saved !" : "There was an error with the image" );
+    let IdEspecialista = data.IdEspecialista;
+    let NombreE = data.NombreE;
+    let Celular = data.Celular;
+    let IdTecnica = data.IdTecnica;
+    let FechaNacimiento = data.FechaNacimiento;
+    let CeCo = data.CeCo;
+    let GID = data.GID;
+    let CedulaCiudadania = data.CedulaCiudadania;
+    let LugarExpedicion = data.LugarExpedicion;
+    let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
+    // Image route
+    let base64String ,base64Image, imagePath;
+    var query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "' WHERE IdEspecialista=" + IdEspecialista;
+    if (data.Foto) {
+        base64String = data.Foto;
+        base64Image = base64String.split(';base64,').pop();
+        imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
+        query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "' WHERE IdEspecialista=" + IdEspecialista;
+    }
+    console.log(imagePath);
+    con.query(query, async (error, result, fields) => {
+        if(data.Foto) {
+            saveImage(imagePath, base64Image).then((imageResult) => {
+                console.log(imageResult)
+                res.json(imageResult);
+            })
+        } else res.json( (error)? "false": "true");
     })
 });
 
 
-// Saves the new image
-const saveImage = (imagePath, base64Image) => {
-    fs.writeFile(path.normalize(imagePath), base64Image, { encoding: 'base64' }, (err) => {
-        if (err) return false;
-        return true;
-    })
-};
-
-// router.post('/labs/search', async (req, res) => {
-
-//     var count = await Labs.countDocuments({}, (err, count) => { return count})
-//     if(count == 0) {
-//         console.log('load files to toxlabs')
-//         const fs = require('fs')
-//         const path = require('path')
-//         await Labs.insertMany(JSON.parse(await fs.readFileSync(path.join(__dirname, 'national-toxlabs.json'))))
-//         console.log('Done loading results')
-//         var c = await Labs.countDocuments({}, (err, count) => {return count})
-//         console.log('Number of results: ' + c)
-//     }
-//     console.log(req.body)
-
-//     const city = req.body.city.split(",")[0]
-//     const conversation_id = req.body.id;    
-//     const docs = await Labs.find({ciudad: city}).select({nombre: 1, direccion: 1, telefono: 1})
-//     const reply = lab_search(docs, city)
-//     await res.json({
-//          replies: [{
-//             type: 'text',
-//             content: `Esto fue lo que encontre.`
-//         }]
-//     })
-
-//     var headers = {
-//         'Content-Type' : 'application/json',
-//         'Authorization' : 'Token bc6a6c225d77a9e9a27d173f4458b4bb'
-//     }
-
-//     var options = {
-//         url: `https://api.recast.ai/connect/v1/conversations/${conversation_id}/messages`,
-//         method: 'POST',
-//         headers: headers,
-//         form: {'messages': reply}
-//     }
-
-//     request(options, (error, res, body) => {
-//         if (!error && res.statusCode == 201){
-//             console.log('Made it')
-//         }
-//     })
-// })
-
-// const questionSchema = new mongoose.Schema({
-//     type: String,
-//     email: String,
-//     question: String
-// })
-
-// const Questions = mongoose.model('quest', questionSchema)
-
-// router.post('/questions', async (req, res) => {
-//     res.end();
-//     const question = new Questions({
-//         type: req.body.type,
-//         email: req.body.email,
-//         question: req.body.question
-//     })
-//     var conversation_id = req.body.id;
-//     console.log(req.body)
-//     await question.save()
-//         .then(() => {
-//             console.log('Saved Question in DB!')
-//             var headers = {
-//                 'Content-Type' : 'application/json',
-//                 'Authorization' : 'Token bc6a6c225d77a9e9a27d173f4458b4bb'
-//             }
-
-//             var options = {
-//                 url: `https://api.recast.ai/connect/v1/conversations/${conversation_id}/messages`,
-//                 method: 'POST',
-//                 headers: headers,
-//                 form: {'messages': [{ type: 'text', content: `Tu pregunta fue guardada exitosamente !`}]}
-//             }
-
-//             request(options, (error, res, body) => {
-//                 if (!error && res.statusCode == 201){
-//                     console.log('Made it')
-//                 }
-//             })            
-//         })
-// })
 module.exports = {
     router,
     startingMysql
