@@ -77,3 +77,12 @@ INSERT INTO Status(Nombre) VALUES("En Servicio"),
 select Especialista.Nombre, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and curdate() between fechainicio and fechafin;
 
 SELECT Especialista.Nombre, Especialista.Celular, Tecnica.Nombre, Asignacion.IdStatus from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista WHERE CURDATE() BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;
+
+
+
+CREATE TABLE UsuarioDesktop (
+email varchar(100),
+password varchar(255)	
+);
+
+

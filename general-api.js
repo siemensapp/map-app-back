@@ -3,7 +3,9 @@ const mysql = require('mysql');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 const variables = require('./variables');
+const jwt = require('jsonwebtoken');
 
 
 const router = express.Router();
@@ -30,7 +32,7 @@ const startingMysql = () => {
     });
 }
 
-// Configurar mas tarde
+// Configurar mas tarde CORS
 router.use(cors());
 
 /* ------------------------- FUNCIONES AUXILIARES --------------------------------  */
@@ -60,6 +62,35 @@ function convertBase64 (singleWorker) {
 /* -------------------------------- ENDPOINTS -------------------------------------  */
 
 // router.post()
+
+// Registrar un nuevo usuario, SOLO PARA PRUEBAS Y USO DE BCRYPT
+router.post('/register', (req, res, err) => {
+    let name = req.body.name;
+    let email = req.body.email;
+    let hashedPassword = bcrypt.hashSync(req.body.password, 8);
+    let query = "INSERT INTO UsuarioDesktop (name, email, password) values('" + name + "','" + email + "','" + hashedPassword + "');";
+    console.log(query);
+    con.query(query, (error, result) => {
+        if (error) return res.json("Error en la base de datos");
+        else{
+            console.log("Resultados insersion", result);
+            res.json("Registro completado");
+        }
+    })
+})
+
+// El usuario se logea a traves de este endpoint
+router.post('/login', (req, res, err) => {
+    let query = "SELECT * FROM UsuarioDesktop WHERE email='" + req.body.email +"';";
+    con.query(query, (error, result) => {
+        if(error) return res.json("Usuario no registrado");
+        let comparePassword = bcrypt.compareSync(req.body.password, result[0].password);
+        if(!comparePassword) return res.json("Contraseña icorrecta");
+        let token = jwt.sign({email: result.password}, variables.secret, {expiresIn: 86400})
+        return res.send({auth: true, token: token, expiresIn: 86400});
+    })
+})
+
 
 
 // Trae datos de trabajadores en servicio para poner los puntos en el mapa
