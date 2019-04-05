@@ -1,11 +1,11 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 const bcrypt = require('bcryptjs');
-const variables = require('./variables');
+const variables = require('./auxiliar/variables');
 const jwt = require('jsonwebtoken');
+const auxImage = require('./auxiliar/imageFunctions');
+const verifyToken = require('./auxiliar/verifyToken');
 
 
 const router = express.Router();
@@ -35,30 +35,6 @@ const startingMysql = () => {
 // Configurar mas tarde CORS
 router.use(cors());
 
-/* ------------------------- FUNCIONES AUXILIARES --------------------------------  */
-
-function saveImage (imagePath, base64Image){
-    return new Promise(resolve => {
-        fs.writeFile(path.normalize(imagePath), base64Image, { encoding: 'base64'}, (err) => {
-            // Revisa si la imagen fue 
-            if(err) console.log("Error antes de verificacion", err);
-            fs.access(path.normalize(imagePath), fs.constants.F_OK, (error) => {
-                let result = (error) ? "false" : "true";
-                console.log("Result File Exists?", result);
-                resolve(result);
-            })
-        })
-    })
-}
-
-// Funcion que transforma una imagen existente en una cadena de base64
-function convertBase64 (singleWorker) {
-    console.log("Convert base 64:", singleWorker.Foto);
-    let pathFoto = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images\\\\default-user.png")
-    let bitmap = fs.readFileSync(path.normalize(pathFoto));
-    return new Buffer(bitmap).toString('base64');
-}
-
 /* -------------------------------- ENDPOINTS -------------------------------------  */
 
 // router.post()
@@ -73,7 +49,6 @@ router.post('/register', (req, res, err) => {
     con.query(query, (error, result) => {
         if (error) return res.json("Error en la base de datos");
         else{
-            console.log("Resultados insersion", result);
             res.json("Registro completado");
         }
     })
@@ -105,6 +80,11 @@ router.get("/workers", (req, res, err) => {
         console.log("Done with get")
 });
 
+// Endpoint para probar el middleware del token
+router.get('/test', verifyToken, (req, res) => {
+    res.json("Prueba exitosa");
+})
+
 // Trae datos para llenar opciones del componente de asignacion
 router.get("/allWorkers", (req, res, err) => {
     console.log("Connected to get")
@@ -112,25 +92,24 @@ router.get("/allWorkers", (req, res, err) => {
     con.query("select NombreE, IdEspecialista from Especialista", (error, result, fields) => {
             if (error) throw error;
             workersQuery = result;
-            console.log(workersQuery);
             res.json(workersQuery);
-        }),
-        console.log("Done with get")
+        })
 });
 
 // Trae los detalles de los trabajadores a la lista de usuarios, se prepara para la edicion.
-router.get("/workersList", (req, res, err) => {
+router.get("/workersList/:date", (req, res, err) => {
     console.log("Connected to get all List")
     var workersQuery;
-    con.query("SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT,  Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE CURDATE() BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin", (error, result, fields) => {
+    let fecha = req.params.date;
+    let query = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT,  Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE '" + fecha + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin"; 
+    con.query(query , (error, result, fields) => {
             if (error) throw error;
             workersQuery = result;
             for (let worker of workersQuery) {
-                worker["FotoBase64"] = convertBase64(worker);
+                worker["FotoBase64"] = auxImage.convertBase64(worker);
             }
-            res.json(workersQuery);
-        }),
-        console.log("Done with get all List")
+            return res.json(workersQuery);
+        })
 });
 
 // Crea asignacion 
@@ -156,7 +135,6 @@ router.post("/setAssignment", (req, res, err) => {
 // Borra usuario dado un id y tambien sus asignaciones
 router.get("/deleteWorker/:workerId", (req, res, err) => {
     console.log("Entered delete");
-    console.log(req.params.workerId);
     con.query("delete from Especialista Where IdEspecialista=" + req.params.workerId + ";", (error, result, fields) => {
         res.json( (error)? "false": "true" )
     })
@@ -188,7 +166,7 @@ router.post("/createWorker", (req, res, err) => {
     console.log(imagePath);
     con.query(query, async (error, result, fields) => {
         if(data.Foto) {
-            saveImage(imagePath, base64Image).then((imageResult) => {
+            auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
                 console.log(imageResult)
                 res.json(imageResult);
             })
@@ -222,8 +200,7 @@ router.post("/editWorker", (req, res, err) => {
     console.log(imagePath);
     con.query(query, async (error, result, fields) => {
         if(data.Foto) {
-            saveImage(imagePath, base64Image).then((imageResult) => {
-                console.log(imageResult)
+            auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
                 res.json(imageResult);
             })
         } else res.json( (error)? "false": "true");

@@ -85,4 +85,6 @@ email varchar(100),
 password varchar(255)	
 );
 
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1NTQ0NzU5ODcsImV4cCI6MTU1NDU2MjM4N30.ggCsjL6reX2hC8x8ZyhCoBKr_UdhU7l79UNFepbRfvw"
+
 
