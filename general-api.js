@@ -39,8 +39,8 @@ router.use(cors());
 
 // router.post()
 
-// Registrar un nuevo usuario, SOLO PARA PRUEBAS Y USO DE BCRYPT
-router.post('/register', (req, res, err) => {
+// Registrar un nuevo usuario de Desktop, SOLO PARA PRUEBAS Y USO DE BCRYPT
+router.post('/registerDesktop', (req, res, err) => {
     let name = req.body.name;
     let email = req.body.email;
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
@@ -54,13 +54,27 @@ router.post('/register', (req, res, err) => {
     })
 })
 
+// Registrar un nuevo usuario de App, SOLO PARA PRUEBAS Y USO DE BCRYPT
+router.post('/registerApp', (req, res, err) => {
+    let CedulaCiudadania = req.body.cedula;
+    let hashedPassword = bcrypt.hashSync(req.body.password, 8);
+    let query = "INSERT INTO UsuarioApp (CedulaCiudadania, password) values('" + CedulaCiudadania + "','" + hashedPassword + "');";
+    console.log(query);
+    con.query(query, (error, result) => {
+        if (error) return res.json("Error en la base de datos");
+        else{
+            res.json("Registro completado");
+        }
+    })
+})
+
 // El usuario se logea a traves de este endpoint
 router.post('/login', (req, res, err) => {
-    let query = "SELECT * FROM UsuarioDesktop WHERE email='" + req.body.email +"';";
-    con.query(query, (error, result) => {
-        if(error) return res.json("Usuario no registrado");
+    let query = "SELECT * FROM UsuarioApp WHERE CedulaCiudadania='" + req.body.user +"';";
+    con.query(query, (err, result) => {
+        if (result.length == 0) return res.json("Usuario no encontrado");
         let comparePassword = bcrypt.compareSync(req.body.password, result[0].password);
-        if(!comparePassword) return res.json("Contraseña icorrecta");
+        if(!comparePassword) return res.json("Contraseña incorrecta");
         let token = jwt.sign({email: result.password}, variables.secret, {expiresIn: 86400})
         return res.send({auth: true, token: token, expiresIn: 86400});
     })
@@ -207,6 +221,35 @@ router.post("/editWorker", (req, res, err) => {
     })
 });
 
+router.get('/getAssignments/:date', (req, res , err) => {
+    let auxDate = req.params.date.split("-");
+    let query = "SELECT * FROM asignacion where YEAR(fechaInicio) = " + auxDate[0] + " and YEAR(fechaFin) = " +auxDate[0] + " and MONTH(fechaInicio) = " + auxDate[1] + " or MONTH(fechaFin) = " + auxDate[1] +";";
+    con.query(query, (error, result) => {
+        if (error) return res.json("HUbo un error");
+        res.json(result);
+    })
+})
+
+router.get('/getWorkerAssignments/:worker', (req, res , err) => {
+    let worker = req.params.worker;
+    let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='" + worker + "';";
+    // let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='10236';";
+    con.query(query, (error, result) => {
+        if (error) return res.json("Hubo un error");
+        res.json(result);
+    })
+})
+
+router.get('/getInfoAssignment/:id/:date', (req, res , err) => {
+    let id = req.params.id;
+    let date = req.params.date;
+    let query = " SELECT Especialista.NombreE, Tecnica.NombreT, Status.NombreS, Asignacion.FechaInicio, Asignacion.FechaFin, Asignacion.NombreSitio, Asignacion.NombreContacto, Asignacion.TelefonoContacto, Asignacion.Descripcion FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica INNER JOIN Asignacion ON Especialista.IdEspecialista=Asignacion.IdEspecialista INNER JOIN Status ON Asignacion.IdStatus=Status.IdStatus WHERE Asignacion.IdEspecialista="+id+" AND '"+date+"' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;";
+    // let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='10236';";
+    con.query(query, (error, result) => {
+        if (error) return res.json("Hubo un error");
+        res.json(result);
+    })
+})
 
 module.exports = {
     router,

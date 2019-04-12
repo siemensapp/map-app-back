@@ -24,7 +24,7 @@ VALUES(1014119, 1, '2019-03-27', '2019-04-25', '-74.1869894,4.77715890', '-74.18
 (1016388, 3, '2019-03-27', '2019-04-01', null, null, null, null, null, null);
 
 INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion)
-VALUES(1, 1, '2019-03-29', '2019-04-14', '-74.1869991,4.77759007', '-74.1827862,4.7778881', 'Campo Rubiales', 'Brian OConner', '3125550115', 'Descripcion muy complicada de un problema 2' );
+VALUES(1, 1, '2019-04-12', '2019-04-30', '-74.1869991,4.77759007', '-74.1827862,4.7778881', 'Campo Rubiales', 'Brian OConner', '3125550115', 'Probando asignaciones' );
 
 
 create table Status(
@@ -84,6 +84,14 @@ CREATE TABLE UsuarioDesktop (
 email varchar(100),
 password varchar(255)	
 );
+
+CREATE TABLE UsuarioApp (
+CedulaCiudadania varchar(15),
+password varchar(255)
+);
+
+// Select de traer asignaciones desde app
+SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='1032480886';
 
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1NTQ0NzU5ODcsImV4cCI6MTU1NDU2MjM4N30.ggCsjL6reX2hC8x8ZyhCoBKr_UdhU7l79UNFepbRfvw"
 
