@@ -226,6 +226,7 @@ router.get('/getAssignments/:date', (req, res , err) => {
     let query = "SELECT * FROM asignacion where YEAR(fechaInicio) = " + auxDate[0] + " and YEAR(fechaFin) = " +auxDate[0] + " and MONTH(fechaInicio) = " + auxDate[1] + " or MONTH(fechaFin) = " + auxDate[1] +";";
     con.query(query, (error, result) => {
         if (error) return res.json("HUbo un error");
+        console.log("getAssignment length:", result.length);
         res.json(result);
     })
 })
@@ -248,6 +249,27 @@ router.get('/getInfoAssignment/:id/:date', (req, res , err) => {
     con.query(query, (error, result) => {
         if (error) return res.json("Hubo un error");
         res.json(result);
+    })
+})
+
+// Borra asignacion dado el id del especialista y la fecha
+router.get("/deleteAssignment/:workerId/:date", (req, res, err) => {
+    let worker = req.params.workerId;
+    let date = req.params.date;
+    let query = "delete from asignacion Where IdEspecialista=" + worker + " AND '" + date + "' BETWEEN FechaInicio and FechaFin;";
+    console.log(query);
+    con.query(query, (error, result, fields) => {
+        res.json( (error)? "false": "true" )
+    })
+});
+
+//
+router.get("/getMonthAssignments/:date", (req, res, err) => {
+    let date = req.params.date;
+    let query = "SELECT Asignacion.IdEspecialista, Asignacion.IdStatus, Asignacion.FechaInicio, Asignacion.FechaFin, Especialista.IdTecnica as tecnica, (SELECT COUNT(*) FROM Especialista WHERE IdTecnica=tecnica) as Cuenta FROM Asignacion INNER JOIN Especialista ON Asignacion.IdEspecialista=Especialista.IdEspecialista WHERE YEAR(Asignacion.FechaInicio) = YEAR('" + date + "') AND MONTH(Asignacion.FechaInicio)=MONTH('" + date + "') OR YEAR(Asignacion.FechaFin) = YEAR('" + date + "') AND MONTH(Asignacion.FechaFin) = MONTH('" + date + "');";
+    con.query(query, (error, result) => {
+        if (error) return res.json("Error");
+        return res.json(result);
     })
 })
 

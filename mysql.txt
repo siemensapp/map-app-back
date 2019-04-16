@@ -1,3 +1,7 @@
+// Nodejs Mysql connection
+ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY 'admin';
+
+
 create table Asignacion( 
 IdEspecialista INT(20) not null, 
 IdStatus INT(20) not null,
@@ -14,12 +18,12 @@ Descripcion VARCHAR(255)
 
 
 INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion)
-VALUES(1014119, 1, '2019-03-20', '2019-03-23', '-74.1869894,4.77715890', '-74.1827862,4.7771596', 'La cabaÒa', 'John Milton', '3125559115', 'Descripcion muy complicada de un problema' ),
+VALUES(1014119, 1, '2019-03-20', '2019-03-23', '-74.1869894,4.77715890', '-74.1827862,4.7771596', 'La caba√±a', 'John Milton', '3125559115', 'Descripcion muy complicada de un problema' ),
 (1014629, 1, '2019-03-20', '2019-03-25', '-74.1869894,4.77759386', '-74.1827862,4.7778881', 'Campo Rubiales', 'Brian OConner', '3125550115', 'Descripcion muy complicada de un problema 2' ),
 (1016388, 3, '2019-03-20', '2019-04-01', null, null, null, null, null, null);
 
 INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion)
-VALUES(1014119, 1, '2019-03-27', '2019-04-25', '-74.1869894,4.77715890', '-74.1827862,4.7771596', 'La cabaÒa', 'John Milton', '3125559115', 'Descripcion muy complicada de un problema' ),
+VALUES(1014119, 1, '2019-03-27', '2019-04-25', '-74.1869894,4.77715890', '-74.1827862,4.7771596', 'La caba√±a', 'John Milton', '3125559115', 'Descripcion muy complicada de un problema' ),
 (1014629, 1, '2019-03-27', '2019-04-20', '-74.1869894,4.77759386', '-74.1827862,4.7778881', 'Campo Rubiales', 'Brian OConner', '3125550115', 'Descripcion muy complicada de un problema 2' ),
 (1016388, 3, '2019-03-27', '2019-04-01', null, null, null, null, null, null);
 
@@ -29,15 +33,15 @@ VALUES(1, 1, '2019-04-12', '2019-04-30', '-74.1869991,4.77759007', '-74.1827862,
 
 create table Status(
 IdStatus INT(20) not null primary key auto_increment,
-Nombre VARCHAR(100)
+NombreS VARCHAR(100)
 );
 
 ALTER TABLE Asignacion ADD CONSTRAINT Status_Asignacion FOREIGN KEY (IdStatus) REFERENCES Status (IdStatus) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE Asignacion ADD CONSTRAINT Especialista_Asignacion FOREIGN KEY (IdEspecialista) REFERENCES Especialista (IdEspecialista) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE Especialista ADD CONSTRAINT Tecnica_Especialista FOREIGN KEY (IdTecnica) REFERENCES Tecnica (IdTecnica);
+ALTER TABLE Especialista ADD CONSTRAINT Tecnica_Especialista FOREIGN KEY (IdTecnica) REFERENCES Tecnica (IdTecnica) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
-INSERT INTO Tecnica(IdTecnica, Nombre) 
+INSERT INTO Tecnica(IdTecnica, NombreT) 
 VALUES(1, "VFD"),
 (2, "BT"),
 (3, "AUT"),
@@ -48,30 +52,29 @@ VALUES(1, "VFD"),
 
 INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica)
 VALUES(1014119, "60100614", "Bernardo Antonio Roldan Agudelo", "FC 2 118", "3214908824", "Z002PA0D", "98578505", "Bello", '1970-04-11', 1),
-(1008382, "60108022", "Carlos Eduardo Rodriguez Olave", "FC 2 133", "3124579014", "Z0009NAR", "19424115", "Bogot·", '1960-07-10', 1),
+(1008382, "60108022", "Carlos Eduardo Rodriguez Olave", "FC 2 133", "3124579014", "Z0009NAR", "19424115", "Bogot√°", '1960-07-10', 1),
 (1014112, "60100614", "Edwin Andres Ortiz Gonzalez", null, "3212326554", "Z002P0UT", "86071235", "Villavicencio", '1982-02-22', 2),
-(1007932, "60108022", "Segundo Epifanio Holguin Gomez", "FC 294", "3118769362", "Z000I1CX", "3232726", "Bogot·", '1957-12-10', 1), 
-(1014482, "60150310", "Fabian Eugenio PeÒa Devia", "FC 2122", "3124579206", "Z002YZRH", "80011341", "Bogot·", '1980-03-05', 1),
-(1011800, "60150310", "Fernando BreÒo Rojas", "FC 295", "3124579220", "Z000FTLD", "79423592", "Bogot·", '1967-03-06', 1),
-(1014629, "60100614", "Juan Carlos Nieto Zarate", "FC 2 130", "3102190842", "Z0032N1D", "79795954", "Bogot·", '1977-10-28', 3),
-(1011224, "60100614", "Pedro Enrique Ramirez Pirajan", "FC 296", "3124579221", "Z0009N5T", "79446597", "Bogot·", '1967-07-25', 2),
-(1191352, "60150310", "Diego Alejandro Riveros CaÒas", null, "3132345680", "Z00343SJ", "79997467", "Bogot·", '1981-08-21', 4),
-(1014055, "60150310", "Yezid Osbaldo Rincon Gonzalez", "FC 2 128", "3124579062", "Z002MN1F", "79890157", "Bogot·", '1978-10-24', 1),
-(1015166, "60150310", "Omar Blanco Morales", "FC 2117", "3208389379", "Z003C84H", "80111555", "Bogot·", '1983-11-16', 1),
-(1015317, "60108022", "Yesid Alfonso Vergel Herrera", "FC 2117", "3202755260", "Z0030XUB", "80870622", "Bogot·", '1984-09-14', 1),
-(1016136, "60100614", "Hugo Fernando Guerrero Benitez", null, "3134615786", "Z003w9uz", "1010168010", "Bogot·", '1986-10-18', 3),
-(1016388, "60150310", "Sebastian Salamanca Montoya", null, "3163285642", "Z003W5AX", "1116240796", "Tulu·", '1988-06-19', 5);
+(1007932, "60108022", "Segundo Epifanio Holguin Gomez", "FC 294", "3118769362", "Z000I1CX", "3232726", "Bogot√°", '1957-12-10', 1), 
+(1014482, "60150310", "Fabian Eugenio Pe√±a Devia", "FC 2122", "3124579206", "Z002YZRH", "80011341", "Bogot√°", '1980-03-05', 1),
+(1011800, "60150310", "Fernando Bre√±o Rojas", "FC 295", "3124579220", "Z000FTLD", "79423592", "Bogot√°", '1967-03-06', 1),
+(1014629, "60100614", "Juan Carlos Nieto Zarate", "FC 2 130", "3102190842", "Z0032N1D", "79795954", "Bogot√°", '1977-10-28', 3),
+(1011224, "60100614", "Pedro Enrique Ramirez Pirajan", "FC 296", "3124579221", "Z0009N5T", "79446597", "Bogot√°", '1967-07-25', 2),
+(1191352, "60150310", "Diego Alejandro Riveros Ca√±as", null, "3132345680", "Z00343SJ", "79997467", "Bogot√°", '1981-08-21', 4),
+(1014055, "60150310", "Yezid Osbaldo Rincon Gonzalez", "FC 2 128", "3124579062", "Z002MN1F", "79890157", "Bogot√°", '1978-10-24', 1),
+(1015166, "60150310", "Omar Blanco Morales", "FC 2117", "3208389379", "Z003C84H", "80111555", "Bogot√°", '1983-11-16', 1),
+(1015317, "60108022", "Yesid Alfonso Vergel Herrera", "FC 2117", "3202755260", "Z0030XUB", "80870622", "Bogot√°", '1984-09-14', 1),
+(1016136, "60100614", "Hugo Fernando Guerrero Benitez", null, "3134615786", "Z003w9uz", "1010168010", "Bogot√°", '1986-10-18', 3),
+(1016388, "60150310", "Sebastian Salamanca Montoya", null, "3163285642", "Z003W5AX", "1116240796", "Tulu√°", '1988-06-19', 5),
+(1, "60150310", "John Milton", null, "3012184422", "Z0041MKM", "1032480886", "Bogot√°", '1996-04-25', 5);
 
-values(1, "60150310", "John Milton", null, "3012184422", "Z0041MKM", "1032480886", "Bogot·", '1996-04-25', 5);
 
-
-INSERT INTO Status(Nombre) VALUES("En Servicio"),
+INSERT INTO Status(NombreS) VALUES("En Servicio"),
 ("Compensatorio"),
 ("Vacaciones"),
 ("Disponible"),
 ("Incapacidad"),
 ("Permiso"),
-("CapacitaciÛn"),
+("Capacitaci√≥n"),
 ("Disponibilidad FDS");
 
 select Especialista.Nombre, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and curdate() between fechainicio and fechafin;
@@ -96,3 +99,21 @@ SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1NTQ0NzU5ODcsImV4cCI6MTU1NDU2MjM4N30.ggCsjL6reX2hC8x8ZyhCoBKr_UdhU7l79UNFepbRfvw"
 
 
+CREATE TABLE especialista (
+  IdEspecialista int(20) NOT NULL primary key,
+  CeCo varchar(10) NOT NULL,
+  NombreE varchar(50) NOT NULL,
+  TarjetaIngresoArgos varchar(50) DEFAULT NULL,
+  Celular varchar(10) NOT NULL,
+  GID varchar(10) NOT NULL,
+  CedulaCiudadania varchar(15) NOT NULL,
+  LugarExpedicion varchar(20) NOT NULL,
+  FechaNacimiento date NOT NULL,
+  IdTecnica int(20) NOT NULL,
+  Foto varchar(255) DEFAULT NULL
+  );
+
+  CREATE TABLE tecnica (
+  IdTecnica int(20) NOT NULL primary key,
+  NombreT varchar(5) DEFAULT NULL
+);

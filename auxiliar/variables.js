@@ -1,4 +1,4 @@
 module.exports = {
-    serverDirectoryWin: 'C:\\\\UserData\\\\Z0041MKM\\\\Documents\\\\TestServer\\\\',
+    serverDirectoryWin: 'C:\\\\Users\\\\Ingenieria\\\\Documents\\\\ServerTest\\\\',
     secret: process.env.SECRET || 'SecretSecret'
 };
