@@ -221,6 +221,8 @@ router.post("/editWorker", (req, res, err) => {
     })
 });
 
+
+// Trae asignaciones dada una fecha (mes y año)
 router.get('/getAssignments/:date', (req, res , err) => {
     let auxDate = req.params.date.split("-");
     let query = "SELECT * FROM asignacion where YEAR(fechaInicio) = " + auxDate[0] + " and YEAR(fechaFin) = " +auxDate[0] + " and MONTH(fechaInicio) = " + auxDate[1] + " or MONTH(fechaFin) = " + auxDate[1] +";";
@@ -231,6 +233,7 @@ router.get('/getAssignments/:date', (req, res , err) => {
     })
 })
 
+// Trae asignaciones de un especialista dada la cedula de ciudadania
 router.get('/getWorkerAssignments/:worker', (req, res , err) => {
     let worker = req.params.worker;
     let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='" + worker + "';";
@@ -241,10 +244,11 @@ router.get('/getWorkerAssignments/:worker', (req, res , err) => {
     })
 })
 
+// Trae info de las asignaciones de un trabajador
 router.get('/getInfoAssignment/:id/:date', (req, res , err) => {
     let id = req.params.id;
     let date = req.params.date;
-    let query = " SELECT Especialista.NombreE, Tecnica.NombreT, Status.NombreS, Asignacion.FechaInicio, Asignacion.FechaFin, Asignacion.NombreSitio, Asignacion.NombreContacto, Asignacion.TelefonoContacto, Asignacion.Descripcion FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica INNER JOIN Asignacion ON Especialista.IdEspecialista=Asignacion.IdEspecialista INNER JOIN Status ON Asignacion.IdStatus=Status.IdStatus WHERE Asignacion.IdEspecialista="+id+" AND '"+date+"' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;";
+    let query = " SELECT Especialista.NombreE, Tecnica.NombreT, Status.NombreS, Asignacion.IdEspecialista, Asignacion.IdStatus, Asignacion.IdAsignacion, Asignacion.FechaInicio, Asignacion.FechaFin, Asignacion.NombreSitio, Asignacion.NombreContacto, Asignacion.TelefonoContacto, Asignacion.Descripcion, Asignacion.CoordenadasSitio, Asignacion.CoordenadasEspecialista FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica INNER JOIN Asignacion ON Especialista.IdEspecialista=Asignacion.IdEspecialista INNER JOIN Status ON Asignacion.IdStatus=Status.IdStatus WHERE Asignacion.IdEspecialista="+id+" AND '"+date+"' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;";
     // let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='10236';";
     con.query(query, (error, result) => {
         if (error) return res.json("Hubo un error");
@@ -253,13 +257,16 @@ router.get('/getInfoAssignment/:id/:date', (req, res , err) => {
 })
 
 // Borra asignacion dado el id del especialista y la fecha
-router.get("/deleteAssignment/:workerId/:date", (req, res, err) => {
-    let worker = req.params.workerId;
-    let date = req.params.date;
-    let query = "delete from asignacion Where IdEspecialista=" + worker + " AND '" + date + "' BETWEEN FechaInicio and FechaFin;";
-    console.log(query);
+router.post("/deleteAssignment/", (req, res, err) => {
+    let body = req.body;
+    let query = "delete from asignacion Where IdEspecialista=" + body.IdEspecialista + " AND '" + body.fecha + "' BETWEEN FechaInicio and FechaFin;";
     con.query(query, (error, result, fields) => {
-        res.json( (error)? "false": "true" )
+        if (error) return res.json("Hubo un error en deleteAsignacion");
+        let query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.FechaInicio + "', '" + body.FechaFin + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+        con.query(query2, (error, result, fields) => {
+            if (error) return res.json("Hubo un error en insert asignacionEliminada");
+            return res.json( (error)? "false":"true" )
+        })
     })
 });
 
