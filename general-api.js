@@ -270,7 +270,7 @@ router.post("/deleteAssignment/", (req, res, err) => {
     })
 });
 
-//
+// Trae las asignaciones del mes
 router.get("/getMonthAssignments/:date", (req, res, err) => {
     let date = req.params.date;
     let query = "SELECT Asignacion.IdEspecialista, Asignacion.IdStatus, Asignacion.FechaInicio, Asignacion.FechaFin, Especialista.IdTecnica as tecnica, (SELECT COUNT(*) FROM Especialista WHERE IdTecnica=tecnica) as Cuenta FROM Asignacion INNER JOIN Especialista ON Asignacion.IdEspecialista=Especialista.IdEspecialista WHERE YEAR(Asignacion.FechaInicio) = YEAR('" + date + "') AND MONTH(Asignacion.FechaInicio)=MONTH('" + date + "') OR YEAR(Asignacion.FechaFin) = YEAR('" + date + "') AND MONTH(Asignacion.FechaFin) = MONTH('" + date + "');";
@@ -278,6 +278,46 @@ router.get("/getMonthAssignments/:date", (req, res, err) => {
         if (error) return res.json("Error");
         return res.json(result);
     })
+})
+
+// Trae TODAS las asignaciones eliminadas
+router.get('/getDeletedAssignments/:date/:text', (req, res , err) => {
+    let Sdate = req.params.date;
+    let Stext = req.params.text;
+    console.log(Sdate, Stext);
+    if(Sdate == "'null'" && Stext == "'null'"){
+        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista ORDER BY IdAsignacionE DESC;";
+        con.query(query, (error, result) => {
+            if (error) return res.json("Hubo un error");
+            console.log("getAssignment length:", result.length);
+            res.json(result);
+    })
+    }
+    else if(Sdate == "'null'" && Stext !== "'null'"){
+        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE (ae.IdEspecialista LIKE '%"+Stext+"%' OR ae.NombreSitio LIKE '%"+Stext+"%' OR ae.NombreContacto LIKE '%"+Stext+"%' OR ae.TelefonoContacto LIKE '%"+Stext+"%' OR ae.Descripcion LIKE '%"+Stext+"%' OR ae.SujetoCancelacion LIKE '%"+Stext+"%' OR ae.RazonCancelacion LIKE '%"+Stext+"%' OR e.NombreE LIKE '%"+Stext+"%') ORDER BY IdAsignacionE DESC;";
+        con.query(query, (error, result) => {
+            if (error) return res.json("Hubo un error");
+            console.log("getAssignment length:", result.length);
+            res.json(result);
+        })
+    }
+    else if(Sdate !== "'null'" && Stext == "'null'"){
+        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE ('"+Sdate+"' BETWEEN ae.FechaInicio AND ae.FechaFin) ORDER BY IdAsignacionE DESC;";
+        con.query(query, (error, result) => {
+            if (error) return res.json("Hubo un error");
+            console.log("getAssignment length:", result.length);
+            res.json(result);
+        })
+    }
+    else{
+        console.log('Entra aqui');
+        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE ('"+Sdate+"' BETWEEN ae.FechaInicio AND ae.FechaFin) AND (ae.IdEspecialista LIKE '%"+Stext+"%' OR ae.NombreSitio LIKE '%"+Stext+"%' OR ae.NombreContacto LIKE '%"+Stext+"%' OR ae.TelefonoContacto LIKE '%"+Stext+"%' OR ae.Descripcion LIKE '%"+Stext+"%' OR ae.SujetoCancelacion LIKE '%"+Stext+"%' OR ae.RazonCancelacion LIKE '%"+Stext+"%' OR e.NombreE LIKE '%"+Stext+"%') ORDER BY IdAsignacionE DESC;";
+        con.query(query, (error, result) => {
+            if (error) return res.json("Hubo un error");
+            console.log("getAssignment length:", result.length);
+            res.json(result);
+        })
+    }
 })
 
 module.exports = {
