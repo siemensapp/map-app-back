@@ -129,18 +129,24 @@ router.get("/workersList/:date", (req, res, err) => {
 // Crea asignacion 
 router.post("/setAssignment", (req, res, err) => {
     let data = req.body;
-
     let IdEspecialista = data.IdEspecialista;
-    let IdStatus = data.IdStatus;
     let FechaInicio = data.FechaInicio;
     let FechaFin = data.FechaFin;
-    let NombreContacto = data.NombreContacto;
-    let TelefonoContacto = data.TelefonoContacto;
-    let Descripcion = data.Descripcion;
-    let CoordenadasSitio = data.CoordenadasSitio;
-    let NombreSitio = data.NombreSitio;
-    con.query("INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion) VALUES(" + IdEspecialista + ", " + IdStatus + ", '" + FechaInicio + "', '" + FechaFin + "', '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + Descripcion + "')", (error, result, fields) => {
-        res.json((error)? "false": "true");
+    let checkQuery = "SELECT * FROM Asignacion WHERE IdEspecialista = " + IdEspecialista + " AND '" + FechaInicio + "' BETWEEN FechaInicio AND FechaFin OR '" + FechaFin + "' BETWEEN FechaInicio AND FechaFin";
+    con.query(checkQuery, (error, result) => {
+        if (error) return res.json("false");
+        if (result.length !== 0) return res.json("existe");
+        let IdEspecialista = data.IdEspecialista;
+        let IdStatus = data.IdStatus;
+        let FechaInicio = data.FechaInicio;
+        let NombreContacto = data.NombreContacto;
+        let TelefonoContacto = data.TelefonoContacto;
+        let Descripcion = data.Descripcion;
+        let CoordenadasSitio = data.CoordenadasSitio;
+        let NombreSitio = data.NombreSitio;
+
+        let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion) VALUES(" + IdEspecialista + ", " + IdStatus + ", '" + FechaInicio + "', '" + FechaFin + "', '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + Descripcion + "')";
+        con.query(insertQuery, (error, result) => res.json((error)? "false": "true"));
     })
 });
 
@@ -316,6 +322,18 @@ router.get('/getDeletedAssignments/:date/:text', (req, res , err) => {
             if (error) return res.json("Hubo un error");
             console.log("getAssignment length:", result.length);
             res.json(result);
+        })
+    }
+})
+
+router.post("/updateCoords", (req, res) => {
+    let data = req.body;
+    console.log("Coords", data);
+    let query = "UPDATE ASIGNACION SET CoordenadasEspecialista='" + data.Coords + "' WHERE IdAsignacion=" + data.IdAsignacion + ";";
+    if (data.Coords.length != 0) {
+        con.query(query, (error, result) => {
+            console.log("Dentro de update");
+            return res.json( (error)? "true":"false" );
         })
     }
 })

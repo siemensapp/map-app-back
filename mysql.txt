@@ -1,4 +1,4 @@
-// Nodejs Mysql connection
+﻿// Nodejs Mysql connection
 ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY 'admin';
 
 
@@ -15,6 +15,10 @@ NombreContacto VARCHAR(60),
 TelefonoContacto VARCHAR(10),
 Descripcion VARCHAR(255)
 );
+
+ALTER TABLE Asignacion add column StatusAsignacion INT(1) not null AFTER IdAsignacion;
+ALTER TABLE Asignacion add column TiempoInicio datetime AFTER StatusAsignacion;
+ALTER TABLE Asignacion add column TiempoFinal datetime AFTER TiempoInicio;
 
 
 INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion)
@@ -117,3 +121,28 @@ CREATE TABLE especialista (
   IdTecnica int(20) NOT NULL primary key,
   NombreT varchar(5) DEFAULT NULL
 );
+
+
+CREATE TABLE ReporteGeneral (
+    -> NombreCliente VARCHAR(80) not null,
+    -> NombreContacto VARCHAR(80) not null,
+    -> NombreColaborador VARCHAR(80) not null,
+    -> NombreProyecto VARCHAR(150) not null,
+    -> DescripcionAlcance TEXT not null,
+    -> HojaTiempo JSON not null,
+    -> Marca VARCHAR(50),
+    -> DenominacionInterna VARCHAR(100),
+    -> NumeroProducto VARCHAR(40) not null,
+    -> NumeroSerial VARCHAR(25),
+    -> CaracteristicasTecnicas VARCHAR(125) not null,
+    -> EstadoInicial VARCHAR(255) not null,
+    -> ActividadesRealizadas TEXT not null,
+    -> Conclusiones TEXT not null,
+    -> RepuestosSugeridos TEXT not null,
+    -> ActividadesPendientes TEXT not null,
+    -> FirmaEmisor BLOB not null,
+    -> FirmaResponsableO BLOB,
+    -> FirmaComerciante BLOB,
+    -> FirmaResponsableP BLOB,
+    -> FirmaCliente BLOB not null
+    -> );
