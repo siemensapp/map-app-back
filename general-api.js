@@ -48,7 +48,7 @@ router.post('/registerDesktop', (req, res, err) => {
     console.log(query);
     con.query(query, (error, result) => {
         if (error) return res.json("Error en la base de datos");
-        else{
+        else {
             res.json("Registro completado");
         }
     })
@@ -62,7 +62,7 @@ router.post('/registerApp', (req, res, err) => {
     console.log(query);
     con.query(query, (error, result) => {
         if (error) return res.json("Error en la base de datos");
-        else{
+        else {
             res.json("Registro completado");
         }
     })
@@ -70,13 +70,21 @@ router.post('/registerApp', (req, res, err) => {
 
 // El usuario se logea a traves de este endpoint
 router.post('/login', (req, res, err) => {
-    let query = "SELECT * FROM UsuarioApp WHERE CedulaCiudadania='" + req.body.user +"';";
+    let query = "SELECT * FROM UsuarioApp WHERE CedulaCiudadania='" + req.body.user + "';";
     con.query(query, (err, result) => {
         if (result.length == 0) return res.json("Usuario no encontrado");
         let comparePassword = bcrypt.compareSync(req.body.password, result[0].password);
-        if(!comparePassword) return res.json("Contraseña incorrecta");
-        let token = jwt.sign({email: result.password}, variables.secret, {expiresIn: 86400})
-        return res.send({auth: true, token: token, expiresIn: 86400});
+        if (!comparePassword) return res.json("Contraseña incorrecta");
+        let token = jwt.sign({
+            email: result.password
+        }, variables.secret, {
+            expiresIn: 86400
+        })
+        return res.send({
+            auth: true,
+            token: token,
+            expiresIn: 86400
+        });
     })
 })
 
@@ -104,10 +112,10 @@ router.get("/allWorkers", (req, res, err) => {
     console.log("Connected to get")
     var workersQuery;
     con.query("select NombreE, IdEspecialista from Especialista", (error, result, fields) => {
-            if (error) throw error;
-            workersQuery = result;
-            res.json(workersQuery);
-        })
+        if (error) throw error;
+        workersQuery = result;
+        res.json(workersQuery);
+    })
 });
 
 // Trae los detalles de los trabajadores a la lista de usuarios, se prepara para la edicion.
@@ -115,15 +123,15 @@ router.get("/workersList/:date", (req, res, err) => {
     console.log("Connected to get all List")
     var workersQuery;
     let fecha = req.params.date;
-    let query = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT,  Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE '" + fecha + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin"; 
-    con.query(query , (error, result, fields) => {
-            if (error) throw error;
-            workersQuery = result;
-            for (let worker of workersQuery) {
-                worker["FotoBase64"] = auxImage.convertBase64(worker);
-            }
-            return res.json(workersQuery);
-        })
+    let query = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT,  Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE '" + fecha + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin";
+    con.query(query, (error, result, fields) => {
+        if (error) throw error;
+        workersQuery = result;
+        for (let worker of workersQuery) {
+            worker["FotoBase64"] = auxImage.convertBase64(worker);
+        }
+        return res.json(workersQuery);
+    })
 });
 
 // Crea asignacion 
@@ -146,7 +154,7 @@ router.post("/setAssignment", (req, res, err) => {
         let NombreSitio = data.NombreSitio;
 
         let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion) VALUES(" + IdEspecialista + ", " + IdStatus + ", '" + FechaInicio + "', '" + FechaFin + "', '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + Descripcion + "')";
-        con.query(insertQuery, (error, result) => res.json((error)? "false": "true"));
+        con.query(insertQuery, (error, result) => res.json((error) ? "false" : "true"));
     })
 });
 
@@ -156,7 +164,7 @@ router.post("/setAssignment", (req, res, err) => {
 router.get("/deleteWorker/:workerId", (req, res, err) => {
     console.log("Entered delete");
     con.query("delete from Especialista Where IdEspecialista=" + req.params.workerId + ";", (error, result, fields) => {
-        res.json( (error)? "false": "true" )
+        res.json((error) ? "false" : "true")
     })
 });
 
@@ -175,7 +183,7 @@ router.post("/createWorker", (req, res, err) => {
     let LugarExpedicion = data.LugarExpedicion;
     let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
     // Image route
-    let base64String ,base64Image, imagePath;
+    let base64String, base64Image, imagePath;
     var query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + "')";
     if (data.Foto) {
         base64String = data.Foto;
@@ -185,12 +193,12 @@ router.post("/createWorker", (req, res, err) => {
     }
     console.log(imagePath);
     con.query(query, async (error, result, fields) => {
-        if(data.Foto) {
+        if (data.Foto) {
             auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
                 console.log(imageResult)
                 res.json(imageResult);
             })
-        } else res.json( (error)? "false": "true");
+        } else res.json((error) ? "false" : "true");
     })
 });
 
@@ -209,7 +217,7 @@ router.post("/editWorker", (req, res, err) => {
     let LugarExpedicion = data.LugarExpedicion;
     let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
     // Image route
-    let base64String ,base64Image, imagePath;
+    let base64String, base64Image, imagePath;
     var query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "' WHERE IdEspecialista=" + IdEspecialista;
     if (data.Foto) {
         base64String = data.Foto;
@@ -219,19 +227,19 @@ router.post("/editWorker", (req, res, err) => {
     }
     console.log(imagePath);
     con.query(query, async (error, result, fields) => {
-        if(data.Foto) {
+        if (data.Foto) {
             auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
                 res.json(imageResult);
             })
-        } else res.json( (error)? "false": "true");
+        } else res.json((error) ? "false" : "true");
     })
 });
 
 
 // Trae asignaciones dada una fecha (mes y año)
-router.get('/getAssignments/:date', (req, res , err) => {
+router.get('/getAssignments/:date', (req, res, err) => {
     let auxDate = req.params.date.split("-");
-    let query = "SELECT * FROM asignacion where YEAR(fechaInicio) = " + auxDate[0] + " and YEAR(fechaFin) = " +auxDate[0] + " and MONTH(fechaInicio) = " + auxDate[1] + " or MONTH(fechaFin) = " + auxDate[1] +";";
+    let query = "SELECT * FROM asignacion where YEAR(fechaInicio) = " + auxDate[0] + " and YEAR(fechaFin) = " + auxDate[0] + " and MONTH(fechaInicio) = " + auxDate[1] + " or MONTH(fechaFin) = " + auxDate[1] + ";";
     con.query(query, (error, result) => {
         if (error) return res.json("HUbo un error");
         console.log("getAssignment length:", result.length);
@@ -240,7 +248,7 @@ router.get('/getAssignments/:date', (req, res , err) => {
 })
 
 // Trae asignaciones de un especialista dada la cedula de ciudadania
-router.get('/getWorkerAssignments/:worker', (req, res , err) => {
+router.get('/getWorkerAssignments/:worker', (req, res, err) => {
     let worker = req.params.worker;
     let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='" + worker + "';";
     // let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='10236';";
@@ -251,10 +259,10 @@ router.get('/getWorkerAssignments/:worker', (req, res , err) => {
 })
 
 // Trae info de las asignaciones de un trabajador
-router.get('/getInfoAssignment/:id/:date', (req, res , err) => {
+router.get('/getInfoAssignment/:id/:date', (req, res, err) => {
     let id = req.params.id;
     let date = req.params.date;
-    let query = " SELECT Especialista.NombreE, Tecnica.NombreT, Status.NombreS, Asignacion.IdEspecialista, Asignacion.IdStatus, Asignacion.IdAsignacion, Asignacion.FechaInicio, Asignacion.FechaFin, Asignacion.NombreSitio, Asignacion.NombreContacto, Asignacion.TelefonoContacto, Asignacion.Descripcion, Asignacion.CoordenadasSitio, Asignacion.CoordenadasEspecialista FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica INNER JOIN Asignacion ON Especialista.IdEspecialista=Asignacion.IdEspecialista INNER JOIN Status ON Asignacion.IdStatus=Status.IdStatus WHERE Asignacion.IdEspecialista="+id+" AND '"+date+"' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;";
+    let query = " SELECT Especialista.NombreE, Tecnica.NombreT, Status.NombreS, Asignacion.IdEspecialista, Asignacion.IdStatus, Asignacion.IdAsignacion, Asignacion.FechaInicio, Asignacion.FechaFin, Asignacion.NombreSitio, Asignacion.NombreContacto, Asignacion.TelefonoContacto, Asignacion.Descripcion, Asignacion.CoordenadasSitio, Asignacion.CoordenadasEspecialista FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica INNER JOIN Asignacion ON Especialista.IdEspecialista=Asignacion.IdEspecialista INNER JOIN Status ON Asignacion.IdStatus=Status.IdStatus WHERE Asignacion.IdEspecialista=" + id + " AND '" + date + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;";
     // let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='10236';";
     con.query(query, (error, result) => {
         if (error) return res.json("Hubo un error");
@@ -271,7 +279,7 @@ router.post("/deleteAssignment/", (req, res, err) => {
         let query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.FechaInicio + "', '" + body.FechaFin + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
         con.query(query2, (error, result, fields) => {
             if (error) return res.json("Hubo un error en insert asignacionEliminada");
-            return res.json( (error)? "false":"true" )
+            return res.json((error) ? "false" : "true")
         })
     })
 });
@@ -287,37 +295,34 @@ router.get("/getMonthAssignments/:date", (req, res, err) => {
 })
 
 // Trae TODAS las asignaciones eliminadas
-router.get('/getDeletedAssignments/:date/:text', (req, res , err) => {
+router.get('/getDeletedAssignments/:date/:text', (req, res, err) => {
     let Sdate = req.params.date;
     let Stext = req.params.text;
     console.log(Sdate, Stext);
-    if(Sdate == "'null'" && Stext == "'null'"){
+    if (Sdate == "'null'" && Stext == "'null'") {
         let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista ORDER BY IdAsignacionE DESC;";
         con.query(query, (error, result) => {
             if (error) return res.json("Hubo un error");
             console.log("getAssignment length:", result.length);
             res.json(result);
-    })
-    }
-    else if(Sdate == "'null'" && Stext !== "'null'"){
-        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE (ae.IdEspecialista LIKE '%"+Stext+"%' OR ae.NombreSitio LIKE '%"+Stext+"%' OR ae.NombreContacto LIKE '%"+Stext+"%' OR ae.TelefonoContacto LIKE '%"+Stext+"%' OR ae.Descripcion LIKE '%"+Stext+"%' OR ae.SujetoCancelacion LIKE '%"+Stext+"%' OR ae.RazonCancelacion LIKE '%"+Stext+"%' OR e.NombreE LIKE '%"+Stext+"%') ORDER BY IdAsignacionE DESC;";
+        })
+    } else if (Sdate == "'null'" && Stext !== "'null'") {
+        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE (ae.IdEspecialista LIKE '%" + Stext + "%' OR ae.NombreSitio LIKE '%" + Stext + "%' OR ae.NombreContacto LIKE '%" + Stext + "%' OR ae.TelefonoContacto LIKE '%" + Stext + "%' OR ae.Descripcion LIKE '%" + Stext + "%' OR ae.SujetoCancelacion LIKE '%" + Stext + "%' OR ae.RazonCancelacion LIKE '%" + Stext + "%' OR e.NombreE LIKE '%" + Stext + "%') ORDER BY IdAsignacionE DESC;";
         con.query(query, (error, result) => {
             if (error) return res.json("Hubo un error");
             console.log("getAssignment length:", result.length);
             res.json(result);
         })
-    }
-    else if(Sdate !== "'null'" && Stext == "'null'"){
-        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE ('"+Sdate+"' BETWEEN ae.FechaInicio AND ae.FechaFin) ORDER BY IdAsignacionE DESC;";
+    } else if (Sdate !== "'null'" && Stext == "'null'") {
+        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE ('" + Sdate + "' BETWEEN ae.FechaInicio AND ae.FechaFin) ORDER BY IdAsignacionE DESC;";
         con.query(query, (error, result) => {
             if (error) return res.json("Hubo un error");
             console.log("getAssignment length:", result.length);
             res.json(result);
         })
-    }
-    else{
+    } else {
         console.log('Entra aqui');
-        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE ('"+Sdate+"' BETWEEN ae.FechaInicio AND ae.FechaFin) AND (ae.IdEspecialista LIKE '%"+Stext+"%' OR ae.NombreSitio LIKE '%"+Stext+"%' OR ae.NombreContacto LIKE '%"+Stext+"%' OR ae.TelefonoContacto LIKE '%"+Stext+"%' OR ae.Descripcion LIKE '%"+Stext+"%' OR ae.SujetoCancelacion LIKE '%"+Stext+"%' OR ae.RazonCancelacion LIKE '%"+Stext+"%' OR e.NombreE LIKE '%"+Stext+"%') ORDER BY IdAsignacionE DESC;";
+        let query = "SELECT ae.IdEspecialista, ae.FechaInicio, ae.FechaFin, ae.NombreSitio, ae.NombreContacto, ae.TelefonoContacto, ae.Descripcion, ae.SujetoCancelacion, ae.RazonCancelacion, e.NombreE FROM AsignacionEliminada AS ae INNER JOIN Especialista AS e ON ae.IdEspecialista=e.IdEspecialista WHERE ('" + Sdate + "' BETWEEN ae.FechaInicio AND ae.FechaFin) AND (ae.IdEspecialista LIKE '%" + Stext + "%' OR ae.NombreSitio LIKE '%" + Stext + "%' OR ae.NombreContacto LIKE '%" + Stext + "%' OR ae.TelefonoContacto LIKE '%" + Stext + "%' OR ae.Descripcion LIKE '%" + Stext + "%' OR ae.SujetoCancelacion LIKE '%" + Stext + "%' OR ae.RazonCancelacion LIKE '%" + Stext + "%' OR e.NombreE LIKE '%" + Stext + "%') ORDER BY IdAsignacionE DESC;";
         con.query(query, (error, result) => {
             if (error) return res.json("Hubo un error");
             console.log("getAssignment length:", result.length);
@@ -333,10 +338,73 @@ router.post("/updateCoords", (req, res) => {
     if (data.Coords.length != 0) {
         con.query(query, (error, result) => {
             console.log("Dentro de update");
-            return res.json( (error)? "true":"false" );
+            return res.json((error) ? "true" : "false");
         })
     }
 })
+
+router.post("/saveGeneralReport", (req, res) => {
+    var data = req.body;
+
+    let NombreCliente = data.NombreCliente;
+    let NombreContacto = data.NombreContacto;
+    let NombreColaborador = data.NombreColaborador;
+    let NombreProyecto = data.NombreProyecto;
+    let DescripcionAlcance = data.DescripcionAlcance;
+    let HojaTiempo = JSON.stringify(data.HojaTiempo);
+    let Marca = data.Marca;
+    let DenominacionInterna = data.DenominacionInterna;
+    let NumeroProducto = data.NumeroProducto;
+    let NumeroSerial = data.NumeroSerial;
+    let CaracteristicasTecnicas = data.CaracteristicasTecnicas;
+    let EstadoInicial = data.EstadoInicial;
+    let ActividadesRealizadas = data.ActividadesRealizadas;
+    let Conclusiones = data.ConclusionesRecomendaciones;
+    let RepuestosSugeridos = data.RepuestosSugeridos;
+    let ActividadesPendientes = data.ActividadesPendientes;
+    let FirmaEmisor = data.FirmaEmisor;
+    let FirmaResponsableO = data.FirmaResponsableO;
+    let FirmaComerciante = data.FirmaComerciante;
+    let FirmaResponsableP = data.FirmaResponsableP;
+    let FirmaCliente = data.FirmaCliente;
+    let IdAsignacion = data.IdAsignacion;
+
+    let query = "Insert into ReporteGeneral(NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor ,FirmaResponsableO, FirmaComerciante , FirmaResponsableP , FirmaCliente, IdAsignacion) VALUES ('" + NombreCliente + "', '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaResponsableO + "', '" + FirmaComerciante + "', '" + FirmaResponsableP + "', '" + FirmaCliente + "', " + IdAsignacion + ")";
+    // let query = "Insert into ReporteGeneral SET ?";
+    // let values = {
+    //     NombreCliente : data.NombreCliente,
+    //     NombreContacto : data.NombreContacto,
+    //     NombreColaborador : data.NombreColaborador,
+    //     NombreProyecto : data.NombreProyecto,
+    //     DescripcionAlcance : data.DescripcionAlcance,
+    //     HojaTiempo : {'horas': data.HojaTiempo},
+    //     Marca : data.Marca,
+    //     DenominacionInterna : data.DenominacionInterna,
+    //     NumeroProducto : data.NumeroProducto,
+    //     NumeroSerial : data.NumeroSerial,
+    //     CaracteristicasTecnicas : data.CaracteristicasTecnicas,
+    //     EstadoInicial : data.EstadoInicial,
+    //     ActividadesRealizadas : data.ActividadesRealizadas,
+    //     Conclusiones : data.Conclusiones,
+    //     RepuestosSugeridos : data.RepuestosSugeridos,
+    //     ActividadesPendientes : data.ActividadesPendientes,
+    //     FirmaEmisor : auxImage.loadImagefromBase64(data.FirmaEmisor),
+    //     FirmaResponsableO : auxImage.loadImagefromBase64(data.FirmaResponsableO),
+    //     FirmaComerciante : auxImage.loadImagefromBase64(data.FirmaComerciante),
+    //     FirmaResponsableP : auxImage.loadImagefromBase64(data.FirmaResponsableP),
+    //     FirmaCliente : auxImage.loadImagefromBase64(data.FirmaCliente),
+    //     IdAsignacion : data.IdAsignacion
+    // }
+    con.query(query, (error, result) => {
+        // console.log(query);
+        if (error) {
+            console.log(query);
+            return res.json("Algo Fallo en el insert");
+        };
+        console.log("Hecho insert");
+        return res.json("Reporte Guardado!");
+    })
+});
 
 module.exports = {
     router,
