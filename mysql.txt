@@ -146,3 +146,11 @@ CREATE TABLE ReporteGeneral (
     -> FirmaResponsableP BLOB,
     -> FirmaCliente BLOB not null
     -> );
+Alter Table reportegeneral add column IdAsignacion INT(20) not null;
+Alter table reportegeneral add constraint IdAsignacion Foreign key (IdAsignacion) references Asignacion(IdAsignacion);
+
+alter table reportegeneral modify column FirmaCliente TEXT ;
+alter table reportegeneral modify column FirmaResponsableP TEXT ;
+ alter table reportegeneral modify column FirmaComerciante TEXT ;
+alter table reportegeneral modify column FirmaResponsableO TEXT ;
+alter table reportegeneral modify column FirmaEmisor TEXT ;

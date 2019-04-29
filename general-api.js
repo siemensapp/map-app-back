@@ -406,6 +406,21 @@ router.post("/saveGeneralReport", (req, res) => {
     })
 });
 
+router.get("/getReportByAssignment/:id", (req, res) => {
+    let IdAsignacion = req.params.id;
+    let query = "SELECT NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos, ActividadesPendientes, FirmaEmisor, FirmaResponsableO, FirmaComerciante, FirmaResponsableP, FirmaCliente, IdAsignacion FROM ReporteGeneral WHERE IdAsignacion="+IdAsignacion+";";
+
+    con.query(query, (error, result) => {
+        if (result.length == 0){
+            return res.json("false");
+        }
+        else{
+            return res.json(result);
+        }
+        
+    })
+})
+
 module.exports = {
     router,
     startingMysql
