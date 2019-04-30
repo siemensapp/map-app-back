@@ -397,12 +397,7 @@ router.post("/saveGeneralReport", (req, res) => {
     // }
     con.query(query, (error, result) => {
         // console.log(query);
-        if (error) {
-            console.log(query);
-            return res.json("Algo Fallo en el insert");
-        };
-        console.log("Hecho insert");
-        return res.json("Reporte Guardado!");
+        return res.json( (error)? "false":"true" );
     })
 });
 
