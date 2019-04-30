@@ -416,6 +416,32 @@ router.get("/getReportByAssignment/:id", (req, res) => {
     })
 })
 
+router.post('/updateTimeStamps', (req, res, err) => {
+    let tiempoInicio = req.body.tiempoInicio;
+    let tiempoFin = req.body.tiempoFin;
+    let IdAsignacion = req.body.IdAsignacion;
+    if(tiempoFin == ''){
+    let query = "UPDATE Asignacion SET TiempoInicio = '"+tiempoInicio+"' WHERE IdAsignacion="+IdAsignacion+"";
+    con.query(query, (error, result) => {
+        if (error) return res.json("Error en la base de datos");
+        else {
+            res.json("Registro actualizado");
+        }
+    })
+    }
+    else{
+        let query = "UPDATE Asignacion SET TiempoFinal = '"+tiempoFin+"' WHERE IdAsignacion="+IdAsignacion+"";
+    con.query(query, (error, result) => {
+        if (error) return res.json("Error en la base de datos");
+        else {
+            res.json("Registro actualizado");
+        }
+    })
+    }
+    console.log(query);
+})
+
+
 module.exports = {
     router,
     startingMysql
