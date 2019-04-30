@@ -80,11 +80,16 @@ router.post('/login', (req, res, err) => {
         }, variables.secret, {
             expiresIn: 86400
         })
-        return res.send({
-            auth: true,
-            token: token,
-            expiresIn: 86400
-        });
+        let userDataQuery = "SELECT NombreE, Foto from Especialista Where CedulaCiudadania='" + req.body.user +"';";
+        con.query( userDataQuery, (err, result) => {
+            return res.send({
+                auth: true,
+                token: token,
+                expiresIn: 86400,
+                NombreE: result[0]['NombreE'],
+                Foto: auxImage.convertBase64(result[0]['Foto'])
+            })
+        })
     })
 })
 
@@ -153,7 +158,7 @@ router.post("/setAssignment", (req, res, err) => {
         let CoordenadasSitio = data.CoordenadasSitio;
         let NombreSitio = data.NombreSitio;
 
-        let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion) VALUES(" + IdEspecialista + ", " + IdStatus + ", '" + FechaInicio + "', '" + FechaFin + "', '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + Descripcion + "')";
+        let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion) VALUES(" + IdEspecialista + ", 0," + IdStatus + ", '" + FechaInicio + "', '" + FechaFin + "', '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + Descripcion + "')";
         con.query(insertQuery, (error, result) => res.json((error) ? "false" : "true"));
     })
 });
