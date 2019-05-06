@@ -145,21 +145,27 @@ router.post("/setAssignment", (req, res, err) => {
     let IdEspecialista = data.IdEspecialista;
     let FechaInicio = data.FechaInicio;
     let FechaFin = data.FechaFin;
-    let checkQuery = "SELECT * FROM Asignacion WHERE IdEspecialista = " + IdEspecialista + " AND '" + FechaInicio + "' BETWEEN FechaInicio AND FechaFin OR '" + FechaFin + "' BETWEEN FechaInicio AND FechaFin";
+    let checkQuery = "SELECT * FROM Asignacion WHERE IdEspecialista = " + IdEspecialista + " AND ('" + FechaInicio + "' BETWEEN FechaInicio AND FechaFin OR '" + FechaFin + "' BETWEEN FechaInicio AND FechaFin)";
     con.query(checkQuery, (error, result) => {
-        if (error) return res.json("false");
+        if (error) return res.json("false checkquery");
         if (result.length !== 0) return res.json("existe");
         let IdEspecialista = data.IdEspecialista;
         let IdStatus = data.IdStatus;
-        let FechaInicio = data.FechaInicio;
+        let NombreCliente = data.NombreCliente;
+        let NombrePlanta = data.NombrePlanta;
+        let CiudadPlanta = data.CiudadPlanta;
         let NombreContacto = data.NombreContacto;
         let TelefonoContacto = data.TelefonoContacto;
+        let EmailContacto = data.EmailContacto;
         let Descripcion = data.Descripcion;
         let CoordenadasSitio = data.CoordenadasSitio;
         let NombreSitio = data.NombreSitio;
 
-        let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion) VALUES(" + IdEspecialista + ", 0," + IdStatus + ", '" + FechaInicio + "', '" + FechaFin + "', '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + Descripcion + "')";
-        con.query(insertQuery, (error, result) => res.json((error) ? "false" : "true"));
+        let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + IdEspecialista + "," + IdStatus + ", 0, '" + NombreCliente +"', '" + NombrePlanta +"', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto +"', '" + Descripcion + "')";
+        con.query(insertQuery, (error, result) => {
+            console.log(error);
+            return res.json((error) ? "false" : "true")
+        });
     })
 });
 
@@ -241,10 +247,11 @@ router.post("/editWorker", (req, res, err) => {
 });
 
 
-// Trae asignaciones dada una fecha (mes y año)
+// Trae asignaciones dada una fecha (mes y año) del cronograma
 router.get('/getAssignments/:date', (req, res, err) => {
     let auxDate = req.params.date.split("-");
-    let query = "SELECT * FROM asignacion where YEAR(fechaInicio) = " + auxDate[0] + " and YEAR(fechaFin) = " + auxDate[0] + " and MONTH(fechaInicio) = " + auxDate[1] + " or MONTH(fechaFin) = " + auxDate[1] + ";";
+    console.log(req.params.date);
+    let query = "SELECT * FROM asignacion where (EXTRACT(YEAR_MONTH FROM '" + req.params.date + "') BETWEEN EXTRACT(YEAR_MONTH FROM fechaInicio) and EXTRACT(YEAR_MONTH FROM fechaFin ));";
     con.query(query, (error, result) => {
         if (error) return res.json("HUbo un error");
         console.log("getAssignment length:", result.length);
@@ -425,8 +432,10 @@ router.post('/updateTimeStamps', (req, res, err) => {
     let tiempoInicio = req.body.tiempoInicio;
     let tiempoFin = req.body.tiempoFin;
     let IdAsignacion = req.body.IdAsignacion;
+    var status = req.body.StatusAsignacion;
+    console.log(req.body);
     if(tiempoFin == ''){
-    let query = "UPDATE Asignacion SET TiempoInicio = '"+tiempoInicio+"' WHERE IdAsignacion="+IdAsignacion+"";
+    let query = "UPDATE Asignacion SET TiempoInicio = '"+tiempoInicio+"', StatusAsignacion="+status+" WHERE IdAsignacion="+IdAsignacion+"";
     con.query(query, (error, result) => {
         if (error) return res.json("Error en la base de datos");
         else {
@@ -434,8 +443,10 @@ router.post('/updateTimeStamps', (req, res, err) => {
         }
     })
     }
-    else{
-        let query = "UPDATE Asignacion SET TiempoFinal = '"+tiempoFin+"' WHERE IdAsignacion="+IdAsignacion+"";
+    else if (tiempoInicio == ""){
+        console.log("entra a tiempoFinal")
+        let query = "UPDATE Asignacion SET TiempoFinal = '" + tiempoFin + "', StatusAsignacion=" + status + " WHERE IdAsignacion=" + IdAsignacion +"";
+        console.log(query);
     con.query(query, (error, result) => {
         if (error) return res.json("Error en la base de datos");
         else {
@@ -443,7 +454,7 @@ router.post('/updateTimeStamps', (req, res, err) => {
         }
     })
     }
-    console.log(query);
+    //console.log(query);
 })
 
 
