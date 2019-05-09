@@ -5,8 +5,9 @@ const api = require('./general-api');
 
 
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '10mb'}));
 app.use('/api', api.router);
+app.use(bodyParser.urlencoded({extended: true, limit: '10mb'}));
 
 api.startingMysql();
 

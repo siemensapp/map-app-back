@@ -69,7 +69,7 @@ router.post('/registerApp', (req, res, err) => {
 })
 
 // El usuario se logea a traves de este endpoint
-router.post('/login', (req, res, err) => {
+router.post('/loginApp', (req, res, err) => {
     let query = "SELECT * FROM UsuarioApp WHERE CedulaCiudadania='" + req.body.user + "';";
     con.query(query, (err, result) => {
         if (result.length == 0) return res.json("Usuario no encontrado");
@@ -80,8 +80,9 @@ router.post('/login', (req, res, err) => {
         }, variables.secret, {
             expiresIn: 86400
         })
-        let userDataQuery = "SELECT NombreE, Foto from Especialista Where CedulaCiudadania='" + req.body.user +"';";
-        con.query( userDataQuery, (err, result) => {
+        let userDataQuery = "SELECT NombreE, Foto from Especialista Where CedulaCiudadania='" + req.body.user + "';";
+        con.query(userDataQuery, (err, result) => {
+            console.log(result);
             return res.send({
                 auth: true,
                 token: token,
@@ -93,7 +94,31 @@ router.post('/login', (req, res, err) => {
     })
 })
 
+//
 
+router.post('/loginDesktop', (req, res, err) => {
+    let query = "SELECT * FROM UsuarioDesktop WHERE email='" + req.body.user + "';";
+    con.query(query, (err, result) => {
+        if (result.length == 0) return res.json("Usuario no encontrado");
+        let comparePassword = bcrypt.compareSync(req.body.password, result[0].password);
+        if (!comparePassword) return res.json("Contraseña incorrecta");
+        let token = jwt.sign({
+            email: result.password
+        }, variables.secret, {
+            expiresIn: 86400
+        })
+        return res.send({
+            auth: true,
+            token: token,
+            expiresIn: 86400
+        })
+        // let userDataQuery = "SELECT NombreE, Foto from Especialista Where CedulaCiudadania='" + req.body.user +"';";
+        // con.query( userDataQuery, (err, result) => {
+        //     console.log(result);
+
+        // })
+    })
+})
 
 // Trae datos de trabajadores en servicio para poner los puntos en el mapa
 router.get("/workers", (req, res, err) => {
@@ -161,7 +186,7 @@ router.post("/setAssignment", (req, res, err) => {
         let CoordenadasSitio = data.CoordenadasSitio;
         let NombreSitio = data.NombreSitio;
 
-        let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + IdEspecialista + "," + IdStatus + ", 0, '" + NombreCliente +"', '" + NombrePlanta +"', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto +"', '" + Descripcion + "')";
+        let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + IdEspecialista + "," + IdStatus + ", 0, '" + NombreCliente + "', '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
         con.query(insertQuery, (error, result) => {
             console.log(error);
             return res.json((error) ? "false" : "true")
@@ -274,7 +299,7 @@ router.get('/getWorkerAssignments/:worker', (req, res, err) => {
 router.get('/getInfoAssignment/:id/:date', (req, res, err) => {
     let id = req.params.id;
     let date = req.params.date;
-    let query = " SELECT Especialista.NombreE, Tecnica.NombreT, Status.NombreS, Asignacion.IdEspecialista, Asignacion.IdStatus, Asignacion.IdAsignacion, Asignacion.FechaInicio, Asignacion.FechaFin, Asignacion.NombreSitio, Asignacion.NombreContacto, Asignacion.TelefonoContacto, Asignacion.Descripcion, Asignacion.CoordenadasSitio, Asignacion.CoordenadasEspecialista FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica INNER JOIN Asignacion ON Especialista.IdEspecialista=Asignacion.IdEspecialista INNER JOIN Status ON Asignacion.IdStatus=Status.IdStatus WHERE Asignacion.IdEspecialista=" + id + " AND '" + date + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;";
+    let query = " SELECT Especialista.NombreE, Tecnica.NombreT, Status.NombreS, Asignacion.IdEspecialista, Asignacion.IdStatus, Asignacion.IdAsignacion, Asignacion.NombreCliente, Asignacion.NombrePlanta, Asignacion.CiudadPlanta, Asignacion.FechaInicio, Asignacion.FechaFin, Asignacion.NombreSitio, Asignacion.NombreContacto, Asignacion.TelefonoContacto, Asignacion.EmailContacto, Asignacion.Descripcion, Asignacion.CoordenadasSitio, Asignacion.CoordenadasEspecialista FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica INNER JOIN Asignacion ON Especialista.IdEspecialista=Asignacion.IdEspecialista INNER JOIN Status ON Asignacion.IdStatus=Status.IdStatus WHERE Asignacion.IdEspecialista=" + id + " AND '" + date + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;";
     // let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='10236';";
     con.query(query, (error, result) => {
         if (error) return res.json("Hubo un error");
@@ -282,18 +307,97 @@ router.get('/getInfoAssignment/:id/:date', (req, res, err) => {
     })
 })
 
-// Borra asignacion dado el id del especialista y la fecha
+// Borra asignacion en las fechas especificadas dado el id del especialista y la fecha
 router.post("/deleteAssignment/", (req, res, err) => {
+    let query;
+    let query2;
+    let query3;
     let body = req.body;
-    let query = "delete from asignacion Where IdEspecialista=" + body.IdEspecialista + " AND '" + body.fecha + "' BETWEEN FechaInicio and FechaFin;";
-    con.query(query, (error, result, fields) => {
-        if (error) return res.json("Hubo un error en deleteAsignacion");
-        let query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.FechaInicio + "', '" + body.FechaFin + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
-        con.query(query2, (error, result, fields) => {
-            if (error) return res.json("Hubo un error en insert asignacionEliminada");
-            return res.json((error) ? "false" : "true")
+    let desde = new Date(body.Desde);
+    let hasta = new Date(body.Hasta);
+    let fechaInicio = new Date(body.FechaInicio);
+    let fechaFin = new Date(body.FechaFin);
+    //Diferencia entre Desde y FechaInicio
+    let diffDate1 = Math.abs(desde.getTime() - fechaInicio.getTime());
+    let diffDays1 = Math.ceil(diffDate1 / (1000 * 60 * 60 * 24));
+
+    //Diferencia entre Hasta y FechaFin
+    let diffDate2 = Math.abs(fechaFin.getTime() - hasta.getTime());
+    let diffDays2 = Math.ceil(diffDate2 / (1000 * 60 * 60 * 24));
+
+    //Primer Caso Desde = FechaInicio && Hasta < FechaFin
+    if (diffDays1 == 0 && diffDays2 > 0) {
+        let fechaN= new Date();
+        fechaN.setDate(hasta.getDate()+2);
+        fechaN.setMonth(hasta.getMonth());
+        fechaN.setHours(fechaN.getHours()-5);
+        query = "UPDATE Asignacion SET FechaInicio='" + fechaN.toISOString().split("T")[0] + "' WHERE IdAsignacion=" + body.IdAsignacion + "";
+        con.query(query, (error, result, fields) => {
+            if (error) return res.json("Hubo un error");
+            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto +"', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+            con.query(query2, (error, result, fields) => {
+                if (error) return res.json("Hubo un error");
+                return res.json((error) ? "false" : "true")
+            })
         })
-    })
+    }
+
+    //Segundo Caso Desde > FechaInicio && Hasta < FechaFin
+    else if (diffDays1 > 0 && diffDays2 > 0) {
+        let fechaFNOrinigal= new Date();
+        fechaFNOrinigal.setDate(desde.getDate());
+        fechaFNOrinigal.setMonth(desde.getMonth());
+        fechaFNOrinigal.setHours(fechaFNOrinigal.getHours()-5);
+        console.log(fechaFNOrinigal);
+        let fechaINueva= new Date();
+        fechaINueva.setDate(hasta.getDate()+2);  
+        fechaINueva.setMonth(hasta.getMonth());
+        fechaINueva.setHours(fechaINueva.getHours()-5);
+        query = "UPDATE Asignacion SET FechaFin='" + fechaFNOrinigal.toISOString().split("T")[0] + "' WHERE IdAsignacion=" + body.IdAsignacion + "";
+        con.query(query, (error, result, fields) => {
+            if (error) return res.json("Hubo un error");
+            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto +"', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+            con.query(query2, (error, result, fields) => {
+                if (error) return res.json("Hubo un error");
+            query3 = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + body.IdEspecialista + "," + body.IdStatus + ", 0, '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + fechaINueva.toISOString().split("T")[0] + "', '" + fechaFin.toISOString().split("T")[0] + "', null, null, '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "')";
+            con.query(query3, (error, result, fields) => {
+                if (error) return res.json("Hubo un error");
+                return res.json((error) ? "false" : "true")
+            })
+            })
+        })
+    }
+
+    //Tercer Caso Desde > FechaInicio && Hasta = FechaFin
+    else if (diffDays1 > 0 && diffDays2 == 0) {
+        let fechaFN= new Date();
+        fechaFN.setDate(desde.getDate());
+        fechaFN.setMonth(desde.getMonth());
+        fechaFN.setHours(fechaFN.getHours()-5);
+        console.log(fechaFN);
+        query = "UPDATE Asignacion SET FechaFin='" + fechaFN.toISOString().split("T")[0] + "' WHERE IdAsignacion=" + body.IdAsignacion + "";
+        con.query(query, (error, result, fields) => {
+            if (error) return res.json("Hubo Un error");
+            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto +"', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+            con.query(query2, (error, result, fields) => {
+                if (error) return res.json("Hubo un error");
+                return res.json((error) ? "false" : "true")
+            })
+        })
+    }
+
+    //Cuarto Caso Desde = FechaInicio && Hasta = FechaFin
+    else if (diffDays1 == 0 && diffDays2 == 0) {
+        query = "DELETE FROM Asignacion WHERE IdAsignacion="+body.IdAsignacion+"";
+        con.query(query, (error, result, fields) => {
+            if (error) return res.json("Hubo un error");
+            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto +"', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+            con.query(query2, (error, result, fields) => {
+                if (error) return res.json("Hubo un error");
+                return res.json((error) ? "false" : "true")
+            })
+        })
+    }
 });
 
 // Trae las asignaciones del mes
@@ -409,22 +513,21 @@ router.post("/saveGeneralReport", (req, res) => {
     // }
     con.query(query, (error, result) => {
         // console.log(query);
-        return res.json( (error)? "false":"true" );
+        return res.json((error) ? "false" : "true");
     })
 });
 
 router.get("/getReportByAssignment/:id", (req, res) => {
     let IdAsignacion = req.params.id;
-    let query = "SELECT NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos, ActividadesPendientes, FirmaEmisor, FirmaResponsableO, FirmaComerciante, FirmaResponsableP, FirmaCliente, IdAsignacion FROM ReporteGeneral WHERE IdAsignacion="+IdAsignacion+";";
+    let query = "SELECT NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos, ActividadesPendientes, FirmaEmisor, FirmaResponsableO, FirmaComerciante, FirmaResponsableP, FirmaCliente, IdAsignacion FROM ReporteGeneral WHERE IdAsignacion=" + IdAsignacion + ";";
 
     con.query(query, (error, result) => {
-        if (result.length == 0){
+        if (result.length == 0) {
             return res.json("false");
-        }
-        else{
+        } else {
             return res.json(result);
         }
-        
+
     })
 })
 
@@ -434,25 +537,24 @@ router.post('/updateTimeStamps', (req, res, err) => {
     let IdAsignacion = req.body.IdAsignacion;
     var status = req.body.StatusAsignacion;
     console.log(req.body);
-    if(tiempoFin == ''){
-    let query = "UPDATE Asignacion SET TiempoInicio = '"+tiempoInicio+"', StatusAsignacion="+status+" WHERE IdAsignacion="+IdAsignacion+"";
-    con.query(query, (error, result) => {
-        if (error) return res.json("Error en la base de datos");
-        else {
-            res.json("Registro actualizado");
-        }
-    })
-    }
-    else if (tiempoInicio == ""){
+    if (tiempoFin == '') {
+        let query = "UPDATE Asignacion SET TiempoInicio = '" + tiempoInicio + "', StatusAsignacion=" + status + " WHERE IdAsignacion=" + IdAsignacion + "";
+        con.query(query, (error, result) => {
+            if (error) return res.json("Error en la base de datos");
+            else {
+                res.json("Registro actualizado");
+            }
+        })
+    } else if (tiempoInicio == "") {
         console.log("entra a tiempoFinal")
-        let query = "UPDATE Asignacion SET TiempoFinal = '" + tiempoFin + "', StatusAsignacion=" + status + " WHERE IdAsignacion=" + IdAsignacion +"";
+        let query = "UPDATE Asignacion SET TiempoFinal = '" + tiempoFin + "', StatusAsignacion=" + status + " WHERE IdAsignacion=" + IdAsignacion + "";
         console.log(query);
-    con.query(query, (error, result) => {
-        if (error) return res.json("Error en la base de datos");
-        else {
-            res.json("Registro actualizado");
-        }
-    })
+        con.query(query, (error, result) => {
+            if (error) return res.json("Error en la base de datos");
+            else {
+                res.json("Registro actualizado");
+            }
+        })
     }
     //console.log(query);
 })
