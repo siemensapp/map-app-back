@@ -6,6 +6,7 @@ const variables = require('./auxiliar/variables');
 const jwt = require('jsonwebtoken');
 const auxImage = require('./auxiliar/imageFunctions');
 const verifyToken = require('./auxiliar/verifyToken');
+const auxPush = require('./auxiliar/pushFunction');
 
 
 const router = express.Router();
@@ -37,7 +38,13 @@ router.use(cors());
 
 /* -------------------------------- ENDPOINTS -------------------------------------  */
 
-// router.post()
+var fakeDatabase = [];
+
+// Endpoint donde se subscriben a las notificaciones push
+router.post('/subscription', (req, res) => {
+    let subscription = req.body.subscription;
+    fakeDatabase.push(subscription);
+});
 
 // Registrar un nuevo usuario de Desktop, SOLO PARA PRUEBAS Y USO DE BCRYPT
 router.post('/registerDesktop', (req, res, err) => {
@@ -189,6 +196,7 @@ router.post("/setAssignment", (req, res, err) => {
         let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + IdEspecialista + "," + IdStatus + ", 0, '" + NombreCliente + "', '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
         con.query(insertQuery, (error, result) => {
             console.log(error);
+            auxPush.sendNotification(fakeDatabase);
             return res.json((error) ? "false" : "true")
         });
     })
