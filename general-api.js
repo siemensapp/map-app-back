@@ -46,6 +46,27 @@ router.post('/subscription', (req, res) => {
     fakeDatabase.push(subscription);
 });
 
+router.post('/sendNotification', (req, res) => {
+    const notificationPayload = {
+        notification: {
+            title: 'Field Service',
+            body: 'Hay una nueva asignacion disponible',
+            icon: 'assets/icons/icon-512x512.png',
+        },
+    }
+
+    const promises = []
+    fakeDatabase.forEach(subscription => {
+        promises.push(
+            webpush.sendNotification(
+                subscription,
+                JSON.stringify(notificationPayload)
+            )
+        )
+    })
+    Promise.all(promises).then(() => res.sendStatus(200))
+})
+
 // Registrar un nuevo usuario de Desktop, SOLO PARA PRUEBAS Y USO DE BCRYPT
 router.post('/registerDesktop', (req, res, err) => {
     let name = req.body.name;
@@ -335,14 +356,14 @@ router.post("/deleteAssignment/", (req, res, err) => {
 
     //Primer Caso Desde = FechaInicio && Hasta < FechaFin
     if (diffDays1 == 0 && diffDays2 > 0) {
-        let fechaN= new Date();
-        fechaN.setDate(hasta.getDate()+2);
+        let fechaN = new Date();
+        fechaN.setDate(hasta.getDate() + 2);
         fechaN.setMonth(hasta.getMonth());
-        fechaN.setHours(fechaN.getHours()-5);
+        fechaN.setHours(fechaN.getHours() - 5);
         query = "UPDATE Asignacion SET FechaInicio='" + fechaN.toISOString().split("T")[0] + "' WHERE IdAsignacion=" + body.IdAsignacion + "";
         con.query(query, (error, result, fields) => {
             if (error) return res.json("Hubo un error");
-            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto +"', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
             con.query(query2, (error, result, fields) => {
                 if (error) return res.json("Hubo un error");
                 return res.json((error) ? "false" : "true")
@@ -352,41 +373,41 @@ router.post("/deleteAssignment/", (req, res, err) => {
 
     //Segundo Caso Desde > FechaInicio && Hasta < FechaFin
     else if (diffDays1 > 0 && diffDays2 > 0) {
-        let fechaFNOrinigal= new Date();
+        let fechaFNOrinigal = new Date();
         fechaFNOrinigal.setDate(desde.getDate());
         fechaFNOrinigal.setMonth(desde.getMonth());
-        fechaFNOrinigal.setHours(fechaFNOrinigal.getHours()-5);
+        fechaFNOrinigal.setHours(fechaFNOrinigal.getHours() - 5);
         console.log(fechaFNOrinigal);
-        let fechaINueva= new Date();
-        fechaINueva.setDate(hasta.getDate()+2);  
+        let fechaINueva = new Date();
+        fechaINueva.setDate(hasta.getDate() + 2);
         fechaINueva.setMonth(hasta.getMonth());
-        fechaINueva.setHours(fechaINueva.getHours()-5);
+        fechaINueva.setHours(fechaINueva.getHours() - 5);
         query = "UPDATE Asignacion SET FechaFin='" + fechaFNOrinigal.toISOString().split("T")[0] + "' WHERE IdAsignacion=" + body.IdAsignacion + "";
         con.query(query, (error, result, fields) => {
             if (error) return res.json("Hubo un error");
-            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto +"', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
             con.query(query2, (error, result, fields) => {
                 if (error) return res.json("Hubo un error");
-            query3 = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + body.IdEspecialista + "," + body.IdStatus + ", 0, '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + fechaINueva.toISOString().split("T")[0] + "', '" + fechaFin.toISOString().split("T")[0] + "', null, null, '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "')";
-            con.query(query3, (error, result, fields) => {
-                if (error) return res.json("Hubo un error");
-                return res.json((error) ? "false" : "true")
-            })
+                query3 = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + body.IdEspecialista + "," + body.IdStatus + ", 0, '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + fechaINueva.toISOString().split("T")[0] + "', '" + fechaFin.toISOString().split("T")[0] + "', null, null, '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "')";
+                con.query(query3, (error, result, fields) => {
+                    if (error) return res.json("Hubo un error");
+                    return res.json((error) ? "false" : "true")
+                })
             })
         })
     }
 
     //Tercer Caso Desde > FechaInicio && Hasta = FechaFin
     else if (diffDays1 > 0 && diffDays2 == 0) {
-        let fechaFN= new Date();
+        let fechaFN = new Date();
         fechaFN.setDate(desde.getDate());
         fechaFN.setMonth(desde.getMonth());
-        fechaFN.setHours(fechaFN.getHours()-5);
+        fechaFN.setHours(fechaFN.getHours() - 5);
         console.log(fechaFN);
         query = "UPDATE Asignacion SET FechaFin='" + fechaFN.toISOString().split("T")[0] + "' WHERE IdAsignacion=" + body.IdAsignacion + "";
         con.query(query, (error, result, fields) => {
             if (error) return res.json("Hubo Un error");
-            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto +"', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
             con.query(query2, (error, result, fields) => {
                 if (error) return res.json("Hubo un error");
                 return res.json((error) ? "false" : "true")
@@ -396,10 +417,10 @@ router.post("/deleteAssignment/", (req, res, err) => {
 
     //Cuarto Caso Desde = FechaInicio && Hasta = FechaFin
     else if (diffDays1 == 0 && diffDays2 == 0) {
-        query = "DELETE FROM Asignacion WHERE IdAsignacion="+body.IdAsignacion+"";
+        query = "DELETE FROM Asignacion WHERE IdAsignacion=" + body.IdAsignacion + "";
         con.query(query, (error, result, fields) => {
             if (error) return res.json("Hubo un error");
-            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto +"', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
+            query2 = "INSERT INTO AsignacionEliminada (IdEspecialista, IdStatus, IdAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES(" + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.NombreCliente + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
             con.query(query2, (error, result, fields) => {
                 if (error) return res.json("Hubo un error");
                 return res.json((error) ? "false" : "true")
