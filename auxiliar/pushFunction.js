@@ -7,7 +7,7 @@ function notifNewAssignment (subscription) {
         notification: {
             title: 'Field Service',
             body: 'Hay una nueva asignacion disponible',
-            icon: 'assets/icon.png',
+            icon: 'assets/images/icon.png',
         },
     }
     Promise.resolve( webpush.sendNotification(subscription, JSON.stringify(notificationPayload)) ).then(() => console.log('Notificacion enviada al APP'));
