@@ -49,27 +49,27 @@ router.post('/subscription', (req, res) => {
     res.status(200).json("Subscripcion recibida");
 });
 
-router.post('/sendNotification', (req, res) => {
-    console.log(fakeDatabase);
-    const notificationPayload = {
-        notification: {
-            title: 'Field Service',
-            body: 'Hay una nueva asignacion disponible',
-            icon: 'assets/icons/icon-512x512.png',
-        },
-    }
+// router.post('/sendNotification', (req, res) => {
+//     console.log(fakeDatabase);
+//     const notificationPayload = {
+//         notification: {
+//             title: 'Field Service',
+//             body: 'Hay una nueva asignacion disponible',
+//             icon: 'assets/icons/icon-512x512.png',
+//         },
+//     }
 
-    const promises = []
-    fakeDatabase.forEach(subscription => {
-        promises.push(
-            webpush.sendNotification(
-                subscription,
-                JSON.stringify(notificationPayload)
-            )
-        )
-    })
-    Promise.all(promises).then(() => res.sendStatus(200))
-})
+//     const promises = []
+//     fakeDatabase.forEach(subscription => {
+//         promises.push(
+//             webpush.sendNotification(
+//                 subscription,
+//                 JSON.stringify(notificationPayload)
+//             )
+//         )
+//     })
+//     Promise.all(promises).then(() => res.sendStatus(200))
+// })
 
 // Registrar un nuevo usuario de Desktop, SOLO PARA PRUEBAS Y USO DE BCRYPT
 router.post('/registerDesktop', (req, res, err) => {
@@ -221,7 +221,7 @@ router.post("/setAssignment", (req, res, err) => {
         let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + IdEspecialista + "," + IdStatus + ", 0, '" + NombreCliente + "', '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
         con.query(insertQuery, (error, result) => {
             console.log(error);
-            auxPush.sendNotification(fakeDatabase);
+            auxPush.notifNewAssignment(fakeDatabase[0]);
             return res.json((error) ? "false" : "true")
         });
     })
