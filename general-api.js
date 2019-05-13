@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const auxImage = require('./auxiliar/imageFunctions');
 const verifyToken = require('./auxiliar/verifyToken');
 const auxPush = require('./auxiliar/pushFunction');
+const webpush = require('web-push');
 
 
 const router = express.Router();
@@ -42,11 +43,14 @@ var fakeDatabase = [];
 
 // Endpoint donde se subscriben a las notificaciones push
 router.post('/subscription', (req, res) => {
-    let subscription = req.body.subscription;
+    let subscription = req.body;
     fakeDatabase.push(subscription);
+    console.log(fakeDatabase);
+    res.status(200).json("Subscripcion recibida");
 });
 
 router.post('/sendNotification', (req, res) => {
+    console.log(fakeDatabase);
     const notificationPayload = {
         notification: {
             title: 'Field Service',
