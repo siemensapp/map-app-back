@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken');
 const auxImage = require('./auxiliar/imageFunctions');
 const verifyToken = require('./auxiliar/verifyToken');
 const auxPush = require('./auxiliar/pushFunction');
-const webpush = require('web-push');
 
 
 const router = express.Router();
@@ -39,37 +38,21 @@ router.use(cors());
 
 /* -------------------------------- ENDPOINTS -------------------------------------  */
 
-var fakeDatabase = [];
+var fakeDatabase = {};
 
-// Endpoint donde se subscriben a las notificaciones push
-router.post('/subscription', (req, res) => {
+// Endpoint donde se subscriben a las notificaciones push los usuarios de la aplicacion
+router.post('/subscriptionApp', (req, res) => {
     let subscription = req.body;
-    fakeDatabase.push(subscription);
-    console.log(fakeDatabase);
+    fakeDatabase['App'] = subscription;
     res.status(200).json("Subscripcion recibida");
 });
 
-// router.post('/sendNotification', (req, res) => {
-//     console.log(fakeDatabase);
-//     const notificationPayload = {
-//         notification: {
-//             title: 'Field Service',
-//             body: 'Hay una nueva asignacion disponible',
-//             icon: 'assets/icons/icon-512x512.png',
-//         },
-//     }
-
-//     const promises = []
-//     fakeDatabase.forEach(subscription => {
-//         promises.push(
-//             webpush.sendNotification(
-//                 subscription,
-//                 JSON.stringify(notificationPayload)
-//             )
-//         )
-//     })
-//     Promise.all(promises).then(() => res.sendStatus(200))
-// })
+// Endpoint donde se subscriben a las notificaciones push los usuarios de la aplicacion
+router.post('/subscriptionDesktop', (req, res) => {
+    let subscription = req.body;
+    fakeDatabase['Desktop'] = subscription;
+    res.status(200).json("Subscripcion recibida");
+});
 
 // Registrar un nuevo usuario de Desktop, SOLO PARA PRUEBAS Y USO DE BCRYPT
 router.post('/registerDesktop', (req, res, err) => {
@@ -221,7 +204,7 @@ router.post("/setAssignment", (req, res, err) => {
         let insertQuery = "INSERT INTO Asignacion (IdEspecialista, IdStatus, StatusAsignacion, NombreCliente, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES(" + IdEspecialista + "," + IdStatus + ", 0, '" + NombreCliente + "', '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
         con.query(insertQuery, (error, result) => {
             console.log(error);
-            auxPush.notifNewAssignment(fakeDatabase[0]);
+            auxPush.notifNewAssignment(fakeDatabase['App'], 'newAssignment');
             return res.json((error) ? "false" : "true")
         });
     })
@@ -575,7 +558,8 @@ router.post('/updateTimeStamps', (req, res, err) => {
         con.query(query, (error, result) => {
             if (error) return res.json("Error en la base de datos");
             else {
-                res.json("Registro actualizado");
+                auxPush.notifNewAssignment(fakeDatabase['Desktop'], 'assignmentStarted');
+                return res.json("Registro actualizado");
             }
         })
     } else if (tiempoInicio == "") {

@@ -2,13 +2,24 @@ const webpush = require('web-push');
 
 /* ------------------------ FUNCIONES AUXILIARES ------------------------- */
 
-function notifNewAssignment (subscription) {
-    const notificationPayload = {
-        notification: {
-            title: 'Field Service',
-            body: 'Hay una nueva asignacion disponible',
-            icon: 'assets/images/icon.png',
-        },
+function notifNewAssignment (subscription, type) {
+    var notificationPayload = {};
+    switch( type ) {
+        case 'newAssignment':
+            notificationPayload['notification'] = {
+                title: 'Field Service',
+                body: 'Hay una nueva asignación disponible',
+                icon: 'assets/images/icon.png',
+            }
+            break;
+        
+        case 'assignmentStarted':
+            notificationPayload['notification'] = {
+                title: 'Field Service',
+                body: 'Se inicio la asignación',
+                icon: 'assets/images/icon.png',
+            }
+            break;
     }
     Promise.resolve( webpush.sendNotification(subscription, JSON.stringify(notificationPayload)) ).then(() => console.log('Notificacion enviada al APP'));
 }
