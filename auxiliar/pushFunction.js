@@ -3,6 +3,7 @@ const webpush = require('web-push');
 /* ------------------------ FUNCIONES AUXILIARES ------------------------- */
 
 function notifNewAssignment (subscription, type) {
+    console.log("ENTRA A NOTIFNEWASSIGNMENT");
     var notificationPayload = {};
     switch( type ) {
         case 'newAssignment':

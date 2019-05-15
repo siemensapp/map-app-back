@@ -45,6 +45,8 @@ router.post('/subscriptionApp', (req, res) => {
     let subscription = req.body;
     fakeDatabase['App'] = subscription;
     res.status(200).json("Subscripcion recibida");
+    console.log(fakeDatabase);
+
 });
 
 // Endpoint donde se subscriben a las notificaciones push los usuarios de la aplicacion
@@ -52,6 +54,7 @@ router.post('/subscriptionDesktop', (req, res) => {
     let subscription = req.body;
     fakeDatabase['Desktop'] = subscription;
     res.status(200).json("Subscripcion recibida");
+    console.log(fakeDatabase);
 });
 
 // Registrar un nuevo usuario de Desktop, SOLO PARA PRUEBAS Y USO DE BCRYPT
