@@ -503,8 +503,9 @@ router.post("/saveGeneralReport", (req, res) => {
     let FirmaResponsableP = data.FirmaResponsableP;
     let FirmaCliente = data.FirmaCliente;
     let IdAsignacion = data.IdAsignacion;
+    let FechaEnvio = data.FechaEnvio;
 
-    let query = "Insert into ReporteGeneral(NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor ,FirmaResponsableO, FirmaComerciante , FirmaResponsableP , FirmaCliente, IdAsignacion) VALUES ('" + NombreCliente + "', '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaResponsableO + "', '" + FirmaComerciante + "', '" + FirmaResponsableP + "', '" + FirmaCliente + "', " + IdAsignacion + ")";
+    let query = "Insert into ReporteGeneral(NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor ,FirmaResponsableO, FirmaComerciante , FirmaResponsableP , FirmaCliente, IdAsignacion, FechaEnvio) VALUES ('" + NombreCliente + "', '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaResponsableO + "', '" + FirmaComerciante + "', '" + FirmaResponsableP + "', '" + FirmaCliente + "', " + IdAsignacion + "', '"+FechaEnvio+"')";
     // let query = "Insert into ReporteGeneral SET ?";
     // let values = {
     //     NombreCliente : data.NombreCliente,
@@ -538,7 +539,7 @@ router.post("/saveGeneralReport", (req, res) => {
 
 router.get("/getReportByAssignment/:id", (req, res) => {
     let IdAsignacion = req.params.id;
-    let query = "SELECT NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos, ActividadesPendientes, FirmaEmisor, FirmaResponsableO, FirmaComerciante, FirmaResponsableP, FirmaCliente, IdAsignacion FROM ReporteGeneral WHERE IdAsignacion=" + IdAsignacion + ";";
+    let query = "SELECT NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos, ActividadesPendientes, FirmaEmisor, FirmaResponsableO, FirmaComerciante, FirmaResponsableP, FirmaCliente, IdAsignacion, FechaEnvio FROM ReporteGeneral WHERE IdAsignacion=" + IdAsignacion + ";";
 
     con.query(query, (error, result) => {
         if (result.length == 0) {
