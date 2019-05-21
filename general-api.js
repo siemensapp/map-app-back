@@ -592,26 +592,8 @@ router.post("/getEquipmentsBy", (req, res) => {
     console.log(query);
     con.query(query, (error, result) => {
         if (error) return res.json("Hubo un error");
-        else{
-        switch (result['TipoEquipo']) {
-            case 0:
-                result['TipoEquipo'] = 'Arrancador Suave';
-                break;
-            case 1:
-                result['TipoEquipo'] = 'Equipo Automatización';
-                break;
-            case 2:
-                result['TipoEquipo'] = 'Interruptor';
-                break;
-            case 3:
-                result['TipoEquipo'] = 'Motor';
-                break;
-            case 4:
-                result['TipoEquipo'] = 'Variador';
-                break;
-        }
         res.json(result);
-        }
+        
     })
 })
 
