@@ -505,7 +505,7 @@ router.post("/saveGeneralReport", (req, res) => {
     let IdAsignacion = data.IdAsignacion;
     let FechaEnvio = data.FechaEnvio;
 
-    let query = "Insert into ReporteGeneral(NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor ,FirmaResponsableO, FirmaComerciante , FirmaResponsableP , FirmaCliente, IdAsignacion, FechaEnvio) VALUES ('" + NombreCliente + "', '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaResponsableO + "', '" + FirmaComerciante + "', '" + FirmaResponsableP + "', '" + FirmaCliente + "', " + IdAsignacion + "', '"+FechaEnvio+"')";
+    let query = "Insert into ReporteGeneral(NombreCliente, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor ,FirmaResponsableO, FirmaComerciante , FirmaResponsableP , FirmaCliente, IdAsignacion, FechaEnvio) VALUES ('" + NombreCliente + "', '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaResponsableO + "', '" + FirmaComerciante + "', '" + FirmaResponsableP + "', '" + FirmaCliente + "', " + IdAsignacion + "', '" + FechaEnvio + "')";
     // let query = "Insert into ReporteGeneral SET ?";
     // let values = {
     //     NombreCliente : data.NombreCliente,
@@ -581,6 +581,51 @@ router.post('/updateTimeStamps', (req, res, err) => {
     //console.log(query);
 })
 
+//Traer Cliente, Serial y Tipo ( Se puede filtrar por Empresa, TipoEquipo, MLFB)
+router.post("/getEquipmentsBy", (req, res) => {
+    
+    let NombreEmpresa = (req.body.nombre==undefined)? "":req.body.nombre;
+    let TipoEquipo = (req.params.tipo)? "":req.body.tipo;
+    let MLFB = (req.params.mlfb)? "":req.body.mlfb;
+    let query = "SELECT Equipo.NumeroSerial, Empresa.NombreEmpresa, Equipo.TipoEquipo FROM Equipo INNER JOIN Empresa ON Equipo.IdEmpresa=Empresa.IdEmpresa WHERE Empresa.NombreEmpresa LIKE '%" + NombreEmpresa + "%' AND Equipo.TipoEquipo LIKE '%" + TipoEquipo + "%' AND Equipo.MLFB LIKE '%" + MLFB + "%';";
+    console.log(req.body);
+    console.log(query);
+    con.query(query, (error, result) => {
+        if (error) return res.json("Hubo un error");
+        else{
+        switch (result['TipoEquipo']) {
+            case 0:
+                result['TipoEquipo'] = 'Arrancador Suave';
+                break;
+            case 1:
+                result['TipoEquipo'] = 'Equipo Automatización';
+                break;
+            case 2:
+                result['TipoEquipo'] = 'Interruptor';
+                break;
+            case 3:
+                result['TipoEquipo'] = 'Motor';
+                break;
+            case 4:
+                result['TipoEquipo'] = 'Variador';
+                break;
+        }
+        res.json(result);
+        }
+    })
+})
+
+
+//Traer datos del Equipo por Serial
+router.get("/getEquipmentBySerial/:serial", (req, res) => {
+    let NumeroSerial =req.params.serial
+    let query = "SELECT Equipo.NumeroSerial, Empresa.NombreEmpresa, Equipo.MLFB, Equipo.TipoEquipo, Equipo.Descripcion, Equipo.CicloVida, Equipo.FechaProduccion, Equipo.AñosOperacion  FROM Equipo INNER JOIN Empresa ON Equipo.IdEmpresa=Empresa.IdEmpresa WHERE Equipo.NumeroSerial='"+NumeroSerial+"';";
+
+    con.query(query, (error, result) => {
+        if (error) return res.json("Hubo un error");
+        res.json(result);
+    })
+})
 
 module.exports = {
     router,
