@@ -21,7 +21,21 @@ function notifNewAssignment (subscription, type) {
                 icon: 'assets/images/icon.png',
             }
             break;
-    }
+        case 'assignmentRejected':
+            notificationPayload['notification'] = {
+                title: 'Field Service',
+                body: 'Se rechazo una asignación',
+                icon: 'assets/images/icon.png',
+            }
+            break;
+        case 'newReport':
+            notificationPayload['notification'] = {
+                title: 'Field Service',
+                body: 'Hay un nuevo reporte disponible',
+                icon: 'assets/images/icon.png',
+            }
+            break;
+    }       
     Promise.resolve( webpush.sendNotification(subscription, JSON.stringify(notificationPayload)) ).then(() => console.log('Notificacion enviada al APP'));
 }
 
