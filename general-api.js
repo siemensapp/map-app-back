@@ -540,13 +540,10 @@ router.post("/saveGeneralReport", (req, res) => {
     let RepuestosSugeridos = data.RepuestosSugeridos;
     let ActividadesPendientes = data.ActividadesPendientes;
     let FirmaEmisor = data.FirmaEmisor;
-    let FirmaResponsableO = data.FirmaResponsableO;
-    let FirmaComerciante = data.FirmaComerciante;
-    let FirmaResponsableP = data.FirmaResponsableP;
     let FirmaCliente = data.FirmaCliente;
     let IdAsignacion = data.IdAsignacion;
     let FechaEnvio = data.FechaEnvio;
-    let Adjuntos = data.Adjuntos;
+    let Adjuntos = JSON.stringify(data.Adjuntos);
 
     //CREACION DEL CONSECUTIVO
     let IDEMPRESA;
@@ -570,7 +567,7 @@ router.post("/saveGeneralReport", (req, res) => {
                 console.log(Consecutivo);
 
                 //INSERTAR EN REPORTE GENERAL
-                let query = "Insert into ReporteGeneral(Consecutivo, IdEmpresa, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor ,FirmaResponsableO, FirmaComerciante , FirmaResponsableP , FirmaCliente, IdAsignacion, FechaEnvio, Adjuntos) VALUES ('" + Consecutivo + "', " + IDEMPRESA + ", '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaResponsableO + "', '" + FirmaComerciante + "', '" + FirmaResponsableP + "', '" + FirmaCliente + "', " + IdAsignacion + ", '" + FechaEnvio + "', '"+Adjuntos+"');";
+                let query = "Insert into ReporteGeneral(Consecutivo, IdEmpresa, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor , FirmaCliente, IdAsignacion, FechaEnvio, Adjuntos) VALUES ('" + Consecutivo + "', " + IDEMPRESA + ", '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaCliente + "', " + IdAsignacion + ", '" + FechaEnvio + "', '" + Adjuntos + "');";
                 con.query(query, (error, result) => {
                     console.log(error);
                     return res.json((error) ? "false" : "true");
@@ -653,9 +650,10 @@ router.get("/getEquipmentBySerial/:serial", (req, res) => {
 
 router.get("/getReportByAssignment/:id", (req, res) => {
     let IdAsignacion = req.params.id;
-    let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaResponsableO, RG.FirmaComerciante, RG.FirmaResponsableP, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio FROM ReporteGeneral AS RG INNER JOIN Empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN Asignacion ON RG.IdAsignacion=Asignacion.IdAsignacion INNER JOIN Especialista ON Asignacion.IdEspecialista=Especialista.IdEspecialista INNER JOIN Tecnica AS T ON Especialista.IdTecnica=T.IdTecnica WHERE RG.IdAsignacion=" + IdAsignacion + ";";
+    let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio FROM ReporteGeneral AS RG INNER JOIN Empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN Asignacion ON RG.IdAsignacion=Asignacion.IdAsignacion INNER JOIN Especialista ON Asignacion.IdEspecialista=Especialista.IdEspecialista INNER JOIN Tecnica AS T ON Especialista.IdTecnica=T.IdTecnica WHERE RG.IdAsignacion=" + IdAsignacion + ";";
 
     con.query(query, (error, result) => {
+        console.log(query)
         if (result.length == 0) {
             return res.json("false");
         } else {
@@ -667,7 +665,7 @@ router.get("/getReportByAssignment/:id", (req, res) => {
 router.get("/getReportsFromEquipment/:serial", (req, res) => {
     let serial = req.params.serial;
 
-    let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaResponsableO, RG.FirmaComerciante, RG.FirmaResponsableP, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio FROM ReporteGeneral AS RG INNER JOIN Empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN Asignacion ON RG.IdAsignacion=Asignacion.IdAsignacion INNER JOIN Especialista ON Asignacion.IdEspecialista=Especialista.IdEspecialista INNER JOIN Tecnica AS T ON Especialista.IdTecnica=T.IdTecnica WHERE RG.NumeroSerial='" + serial + "';";
+    let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio FROM ReporteGeneral AS RG INNER JOIN Empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN Asignacion ON RG.IdAsignacion=Asignacion.IdAsignacion INNER JOIN Especialista ON Asignacion.IdEspecialista=Especialista.IdEspecialista INNER JOIN Tecnica AS T ON Especialista.IdTecnica=T.IdTecnica WHERE RG.NumeroSerial='" + serial + "';";
     //let query = "SELECT * FROM reportegeneral WHERE NumeroSerial='" + serial + "';";
     con.query(query, (error, result) => {
         console.log(result)
