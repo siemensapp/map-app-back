@@ -617,6 +617,8 @@ router.post('/updateTimeStamps', (req, res, err) => {
     //console.log(query);
 })
 
+/**-------------------------    EQUIPO ---------------------------------- */
+
 //Traer Cliente, Serial y Tipo ( Se puede filtrar por Empresa, TipoEquipo, MLFB)
 router.post("/getEquipmentsBy", (req, res) => {
 
@@ -643,6 +645,31 @@ router.get("/getEquipmentBySerial/:serial", (req, res) => {
         if (error) return res.json("Hubo un error");
         res.json(result);
     })
+})
+
+// Crear equipo nuevo
+router.post("/createEquipment", (req, res) => {
+    let AñosOperacion = req.body.AnnosOperacion;
+    let Ciudad = req.body.Ciudad;
+    let Descripcion = req.body.Descripcion;
+    let EmailPM = req.body.EmailPM;
+    let EmailResponsable = req.body.EmailResponsable;
+    let Fecha = req.body.Fecha;
+    let FechaProduccion = req.body.FechaProduccion;
+    let MLFB = req.body.MLFB;
+    let NombreCliente = req.body.NombreCliente;
+    let NombrePM = req.body.NombrePM;
+    let NumeroContrato = req.body.NumeroContrato;
+    let NumeroSerial = req.body.NumeroSerial;
+    let Periodo = req.body.Periodo;
+    let Planta = req.body.Planta;
+    let Responsable = req.body.Responsable;
+    let TelefonoPM = req.body.TelefonoPM;
+    let TelefonoResponsable = req.body.TelefonoResponsable;
+    let TipoEquipo = req.body.TipoEquipo;
+
+    console.log('Equipo Recibido: ', req.body);
+    res.send(true);
 })
 
 
