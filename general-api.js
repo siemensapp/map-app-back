@@ -625,7 +625,8 @@ router.post("/getEquipmentsBy", (req, res) => {
     let NombreEmpresa = (req.body.nombre == undefined) ? "" : req.body.nombre;
     let TipoEquipo = (req.params.tipo) ? "" : req.body.tipo;
     let MLFB = (req.params.mlfb) ? "" : req.body.mlfb;
-    let query = "SELECT Equipo.NumeroSerial, Empresa.NombreEmpresa, Equipo.TipoEquipo FROM Equipo INNER JOIN Empresa ON Equipo.IdEmpresa=Empresa.IdEmpresa WHERE Empresa.NombreEmpresa LIKE '%" + NombreEmpresa + "%' AND Equipo.TipoEquipo LIKE '%" + TipoEquipo + "%' AND Equipo.MLFB LIKE '%" + MLFB + "%';";
+    let Serial = (req.params.serial)? "" : req.body.serial;
+    let query = "SELECT Equipo.NumeroSerial, Empresa.NombreEmpresa, Equipo.TipoEquipo FROM Equipo INNER JOIN Empresa ON Equipo.IdEmpresa=Empresa.IdEmpresa WHERE Empresa.NombreEmpresa LIKE '%" + NombreEmpresa + "%' AND Equipo.TipoEquipo LIKE '%" + TipoEquipo + "%' AND Equipo.MLFB LIKE '%" + MLFB + "%' AND Equipo.NumeroSerial LIKE '%" + Serial + "%';";
     console.log(req.body);
     console.log(query);
     con.query(query, (error, result) => {
@@ -639,7 +640,7 @@ router.post("/getEquipmentsBy", (req, res) => {
 //Traer datos del Equipo por Serial
 router.get("/getEquipmentBySerial/:serial", (req, res) => {
     let NumeroSerial = req.params.serial
-    let query = "SELECT Equipo.NumeroSerial, Empresa.NombreEmpresa, Equipo.MLFB, Equipo.TipoEquipo, Equipo.Descripcion, Equipo.CicloVida, Equipo.FechaProduccion, Equipo.AñosOperacion  FROM Equipo INNER JOIN Empresa ON Equipo.IdEmpresa=Empresa.IdEmpresa WHERE Equipo.NumeroSerial='" + NumeroSerial + "';";
+    let query = "SELECT Equipo.NumeroSerial, Empresa.NombreEmpresa, Equipo.MLFB, Equipo.TipoEquipo, Equipo.Descripcion, Equipo.CicloVida, Equipo.FechaProduccion, Equipo.AñosOperacion, Equipo.NumeroContrato, Equipo.Planta, Equipo.Ciudad, Equipo.Fecha, Equipo.Periodo, Equipo.Vence, Equipo.NombreResponsable, Equipo.TelefonoResponsable, Equipo.EmailResponsable, Equipo.NombrePM, Equipo.TelefonoPM, Equipo.EmailPM FROM Equipo INNER JOIN Empresa ON Equipo.IdEmpresa=Empresa.IdEmpresa WHERE Equipo.NumeroSerial='" + NumeroSerial + "';";
 
     con.query(query, (error, result) => {
         if (error) return res.json("Hubo un error");
@@ -649,13 +650,13 @@ router.get("/getEquipmentBySerial/:serial", (req, res) => {
 
 // Crear equipo nuevo
 router.post("/createEquipment", (req, res) => {
-    let AñosOperacion = req.body.AnnosOperacion;
+    let AñosOperacion = (req.body.AnnosOperacion == "")? 0: req.body.AnnosOperacion;
     let Ciudad = req.body.Ciudad;
     let Descripcion = req.body.Descripcion;
     let EmailPM = req.body.EmailPM;
     let EmailResponsable = req.body.EmailResponsable;
-    let Fecha = req.body.Fecha;
-    let FechaProduccion = req.body.FechaProduccion;
+    let Fecha = (req.body.Fecha == "")? '0000-00-00': PaymentRequest.body.Fecha;
+    let FechaProduccion = (req.body.FechaProduccion == "")? '0000-00-00': req.body.FechaProduccion;
     let MLFB = req.body.MLFB;
     let NombreCliente = req.body.NombreCliente;
     let NombrePM = req.body.NombrePM;
@@ -663,13 +664,22 @@ router.post("/createEquipment", (req, res) => {
     let NumeroSerial = req.body.NumeroSerial;
     let Periodo = req.body.Periodo;
     let Planta = req.body.Planta;
-    let Responsable = req.body.Responsable;
+    let NombreResponsable = req.body.Responsable;
     let TelefonoPM = req.body.TelefonoPM;
     let TelefonoResponsable = req.body.TelefonoResponsable;
     let TipoEquipo = req.body.TipoEquipo;
+    let CicloVida = req.body.CicloVida;
+    let Vence = (req.body.Vence == "")? '0000-00-00' : req.body.Vence;
 
-    console.log('Equipo Recibido: ', req.body);
-    res.send(true);
+    let queryNombre = "SELECT IdEmpresa from Empresa where NombreEmpresa = '" + NombreCliente + "';";
+    con.query(queryNombre, (error, result) => {
+        if (error) return res.json("false");        
+        let IdEmpresa = result[0]['IdEmpresa'];
+        let query = "INSERT INTO Equipo (NumeroSerial, IdEmpresa, NumeroContrato, Planta, Ciudad, Fecha, Periodo, Vence, NombreResponsable, TelefonoResponsable, EmailResponsable, NombrePM, TelefonoPM, EmailPM, MLFB, TipoEquipo, Descripcion, CicloVida, FechaProduccion, AñosOperacion) values ('" + NumeroSerial + "', " + IdEmpresa + ", '" + NumeroContrato +"', '" + Planta + "', '" + Ciudad + "', '" + Fecha + "', '" + Periodo + "', '" + Vence + "', '" + NombreResponsable + "', '" + TelefonoResponsable + "', '" + EmailResponsable + "', '" + NombrePM + "', '" + TelefonoPM + "', '" + EmailPM + "', '" + MLFB +  "', " + TipoEquipo + ", '" + Descripcion + "', '" + CicloVida + "', '" + FechaProduccion + "', " + AñosOperacion + ")";
+        con.query( query, (err, resultado) => {
+            return res.json((err) ? "false" : "true");
+        })
+    })
 })
 
 
