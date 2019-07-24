@@ -676,6 +676,48 @@ router.post("/createEquipment", (req, res) => {
         if (error) return res.json("false");        
         let IdEmpresa = result[0]['IdEmpresa'];
         let query = "INSERT INTO Equipo (NumeroSerial, IdEmpresa, NumeroContrato, Planta, Ciudad, Fecha, Periodo, Vence, NombreResponsable, TelefonoResponsable, EmailResponsable, NombrePM, TelefonoPM, EmailPM, MLFB, TipoEquipo, Descripcion, CicloVida, FechaProduccion, AñosOperacion) values ('" + NumeroSerial + "', " + IdEmpresa + ", '" + NumeroContrato +"', '" + Planta + "', '" + Ciudad + "', '" + Fecha + "', '" + Periodo + "', '" + Vence + "', '" + NombreResponsable + "', '" + TelefonoResponsable + "', '" + EmailResponsable + "', '" + NombrePM + "', '" + TelefonoPM + "', '" + EmailPM + "', '" + MLFB +  "', " + TipoEquipo + ", '" + Descripcion + "', '" + CicloVida + "', '" + FechaProduccion + "', " + AñosOperacion + ")";
+        console.log('Get equipment by serial:', resultado)
+        con.query( query, (err, resultado) => {
+            return res.json((err) ? "false" : "true");
+        })
+    })
+})
+
+// Update equipo
+router.post("/updateEquipment/:serial", (req, res) => {
+    let currentSerial = req.params.serial;
+
+    let AñosOperacion = (req.body.AnnosOperacion == "")? 0: req.body.AnnosOperacion;
+    let Ciudad = req.body.Ciudad;
+    let Descripcion = req.body.Descripcion;
+    let EmailPM = req.body.EmailPM;
+    let EmailResponsable = req.body.EmailResponsable;
+    let Fecha = (req.body.Fecha == "")? '0000-00-00': req.body.Fecha;
+    let FechaProduccion = (req.body.FechaProduccion == "")? '0000-00-00': req.body.FechaProduccion;
+    let MLFB = req.body.MLFB;
+    let NombreCliente = req.body.NombreEmpresa;
+    let NombrePM = req.body.NombrePM;
+    let NumeroContrato = req.body.NumeroContrato;
+    let NumeroSerial = req.body.NumeroSerial;
+    let Periodo = req.body.Periodo;
+    let Planta = req.body.Planta;
+    let NombreResponsable = req.body.NombreResponsable;
+    let TelefonoPM = req.body.TelefonoPM;
+    let TelefonoResponsable = req.body.TelefonoResponsable;
+    let TipoEquipo = req.body.TipoEquipo;
+    let CicloVida = req.body.CicloVida;
+    let Vence = (req.body.Vence == "")? '0000-00-00' : req.body.Vence;
+
+    let queryNombre = "SELECT IdEmpresa from Empresa where NombreEmpresa = '" + NombreCliente + "';";
+    console.log('Body:', req.body);
+    
+    con.query(queryNombre, (error, result) => {
+        if (error) return res.json("false");
+        console.log('IdEmpresa:', result[0]['IdEmpresa']);        
+        let IdEmpresa = result[0]['IdEmpresa'];
+        let query = "UPDATE Equipo SET AñosOperacion='" + AñosOperacion + "', Ciudad='" + Ciudad + "', Descripcion='" + Descripcion + "', EmailPM='" + EmailPM + "', EmailResponsable='" + EmailResponsable + "', Fecha='" + Fecha + "', FechaProduccion='" + FechaProduccion + "', MLFB='" + MLFB + "', IdEmpresa=" + IdEmpresa + ", NombrePM='" + NombrePM + "', NumeroContrato='" + NumeroContrato + "', NumeroSerial='" + NumeroSerial + "', Periodo='" + Periodo + "', Planta='" + Planta + "', NombreResponsable='" + NombreResponsable + "', TelefonoPM='" + TelefonoPM + "', TelefonoResponsable='" + TelefonoResponsable + "', TipoEquipo=" + TipoEquipo + ", CicloVida='" + CicloVida + "', Vence='" + Vence + "' WHERE NumeroSerial='" + currentSerial + "';";
+        console.log('Query:', query);
+        console.log('Get equipment by serial:', result)
         con.query( query, (err, resultado) => {
             return res.json((err) ? "false" : "true");
         })
