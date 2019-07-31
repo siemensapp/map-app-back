@@ -52,6 +52,7 @@ router.post('/subscriptionApp', (req, res) => {
 // Endpoint donde se subscriben a las notificaciones push los usuarios de la aplicacion
 router.post('/subscriptionDesktop', (req, res) => {
     let subscription = req.body;
+    let query = "UPDATE usuariodesktop SET subscriptionToken='" + JSON.stringify(subscription) + "' WHERE "
     fakeDatabase['Desktop'] = subscription;
     res.status(200).json("Subscripcion recibida");
     console.log(fakeDatabase);
@@ -106,6 +107,7 @@ router.post('/loginApp', (req, res, err) => {
                 token: token,
                 expiresIn: 86400,
                 NombreE: result[0]['NombreE'],
+                NombreColaborador: result[0]['NombreE'],
                 Foto: auxImage.convertBase64(result[0]['Foto'])
             })
         })
@@ -115,7 +117,7 @@ router.post('/loginApp', (req, res, err) => {
 //
 
 router.post('/loginDesktop', (req, res, err) => {
-    let query = "SELECT * FROM UsuarioDesktop WHERE email='" + req.body.user + "';";
+    let query = "SELECT * FROM UsuarioDesktop WHERE email='" + req.body.user + "@siemens.com';";
     con.query(query, (err, result) => {
         if (result.length == 0) return res.json("Usuario no encontrado");
         let comparePassword = bcrypt.compareSync(req.body.password, result[0].password);
@@ -128,7 +130,8 @@ router.post('/loginDesktop', (req, res, err) => {
         return res.send({
             auth: true,
             token: token,
-            expiresIn: 86400
+            expiresIn: 86400,
+            nombre: result[0]['name']
         })
         // let userDataQuery = "SELECT NombreE, Foto from Especialista Where CedulaCiudadania='" + req.body.user +"';";
         // con.query( userDataQuery, (err, result) => {
@@ -523,6 +526,7 @@ router.post("/updateCoords", (req, res) => {
 router.post("/saveGeneralReport", (req, res) => {
     var data = req.body;
 
+    let Consecutivo = data.Consecutivo;
     let NombreCliente = data.NombreCliente;
     let NombreContacto = data.NombreContacto;
     let NombreColaborador = data.NombreColaborador;
@@ -545,36 +549,13 @@ router.post("/saveGeneralReport", (req, res) => {
     let FechaEnvio = data.FechaEnvio;
     let Adjuntos = JSON.stringify(data.Adjuntos);
 
-    //CREACION DEL CONSECUTIVO
-    let IDEMPRESA;
-    let NOMBRETECNICA;
-    let FECHAINICIO;
-    let Consecutivo;
+    let IdEmpresa = Consecutivo.split("-")[0];
 
-    let query1 = "SELECT IdEmpresa FROM Empresa WHERE NombreEmpresa='" + NombreCliente + "';";
-    con.query(query1, (error, result) => {
-        if (error) console.log("ERROR");
-        IDEMPRESA = result[0]['IdEmpresa'];
-        let query2 = "SELECT NombreT FROM Tecnica WHERE IdTecnica=(SELECT IdTecnica FROM Especialista WHERE NombreE='" + NombreColaborador + "');";
-        con.query(query2, (error, result) => {
-            if (error) console.log("ERROR");
-            NOMBRETECNICA = result[0]['NombreT'];
-            let query3 = "SELECT FechaInicio FROM Asignacion WHERE IdAsignacion=" + IdAsignacion + ";";
-            con.query(query3, (error, result) => {
-                if (error) console.log("ERROR");
-                FECHAINICIO = ((result[0]['FechaInicio']).toISOString().split("T")[0]).replace(/-/g, "");
-                Consecutivo = IDEMPRESA + "-" + NOMBRETECNICA + "-" + FECHAINICIO + "-" + NumeroSerial;
-                console.log(Consecutivo);
-
-                //INSERTAR EN REPORTE GENERAL
-                let query = "Insert into ReporteGeneral(Consecutivo, IdEmpresa, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor , FirmaCliente, IdAsignacion, FechaEnvio, Adjuntos) VALUES ('" + Consecutivo + "', " + IDEMPRESA + ", '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaCliente + "', " + IdAsignacion + ", '" + FechaEnvio + "', '" + Adjuntos + "');";
-                con.query(query, (error, result) => {
-                    console.log(error);
-                    return res.json((error) ? "false" : "true");
-                })
-
-            })
-        })
+    //INSERTAR EN REPORTE GENERAL
+    let query = "Insert into ReporteGeneral(Consecutivo, IdEmpresa, NombreContacto, NombreColaborador, NombreProyecto, DescripcionAlcance, HojaTiempo, Marca, DenominacionInterna, NumeroProducto, NumeroSerial, CaracteristicasTecnicas, EstadoInicial, ActividadesRealizadas, Conclusiones, RepuestosSugeridos , ActividadesPendientes, FirmaEmisor , FirmaCliente, IdAsignacion, FechaEnvio, Adjuntos) VALUES ('" + Consecutivo + "', " + IdEmpresa + ", '" + NombreContacto + "', '" + NombreColaborador + "', '" + NombreProyecto + "', '" + DescripcionAlcance + "', '" + HojaTiempo + "', '" + Marca + "', '" + DenominacionInterna + "', '" + NumeroProducto + "', '" + NumeroSerial + "', '" + CaracteristicasTecnicas + "', '" + EstadoInicial + "', '" + ActividadesRealizadas + "', '" + Conclusiones + "', '" + RepuestosSugeridos + "', '" + ActividadesPendientes + "', '" + FirmaEmisor + "', '" + FirmaCliente + "', " + IdAsignacion + ", '" + FechaEnvio + "', '" + Adjuntos + "');";
+    con.query(query, (error, result) => {
+        console.log(error);
+        return res.json((error) ? "false" : "true");
     })
 });
 
@@ -744,10 +725,10 @@ router.get("/getReportByAssignment/:id", (req, res) => {
 router.get("/getReportsFromEquipment/:serial", (req, res) => {
     let serial = req.params.serial;
 
-    let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio FROM ReporteGeneral AS RG INNER JOIN Empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN Asignacion ON RG.IdAsignacion=Asignacion.IdAsignacion INNER JOIN Especialista ON Asignacion.IdEspecialista=Especialista.IdEspecialista INNER JOIN Tecnica AS T ON Especialista.IdTecnica=T.IdTecnica WHERE RG.NumeroSerial='" + serial + "';";
+    let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio, Asignacion.PCFSV FROM ReporteGeneral AS RG INNER JOIN Empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN Asignacion ON RG.IdAsignacion=Asignacion.IdAsignacion INNER JOIN Especialista ON Asignacion.IdEspecialista=Especialista.IdEspecialista INNER JOIN Tecnica AS T ON Especialista.IdTecnica=T.IdTecnica WHERE RG.NumeroSerial='" + serial + "';";
     //let query = "SELECT * FROM reportegeneral WHERE NumeroSerial='" + serial + "';";
     con.query(query, (error, result) => {
-        console.log(result)
+        console.log( result)
         return res.json(result);
     })
 })
