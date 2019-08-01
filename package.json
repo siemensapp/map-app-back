@@ -9,7 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@mysql/xdevapi": "file:../../Downloads/mysql-connector-nodejs-8.0.15.tar.gz",
+    "@mysql/xdevapi": "8.0.17",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",

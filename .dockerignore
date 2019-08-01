@@ -1,0 +1,5 @@
+# Archivos a ignorar en la dockerizacion
+
+node_modules
+.git
+.gitignored

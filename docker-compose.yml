@@ -1,0 +1,23 @@
+version: '2'
+services:
+  cmms-ms:
+    build: . 
+    environment:
+      DOCKER_DEPLOY: 'true'
+      PORT: '3000'
+      DB_PASSWORD: admin
+    links:
+    - cmms-db
+    ports:
+    - "3000:3000"        
+  cmms-db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: root
+      MYSQL_PASSWORD: admin
+    ports:
+    - 3306:3306 
+
+ 

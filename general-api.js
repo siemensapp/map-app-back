@@ -7,34 +7,101 @@ const jwt = require('jsonwebtoken');
 const auxImage = require('./auxiliar/imageFunctions');
 const verifyToken = require('./auxiliar/verifyToken');
 const auxPush = require('./auxiliar/pushFunction');
+const readline = require('readline');
+const fs = require('fs');
 
 
 const router = express.Router();
 
 var con;
-
 const startingMysql = () => {
+    const adress = process.env.DOCKER_DEPLOY? 'cmms-db': '127.0.0.1';    
     con = mysql.createConnection({
-        host: 'localhost',
-        database: 'fieldservice',
+        host: adress,
         user: 'root',
-        password: 'admin',
+        password: process.env.DB_PASSWORD,
+        port: 3306,
         insecureAuth: true
     });
-
-    con.connect((err) => {
-        if (err) {
+    
+    con.connect( (err) => {
+        console.log(`Connecting to ${adress} using root with pwd ${process.env.DB_PASSWORD}`)
+        if (err){
             console.log("Not connected to Mysql, Retrying ...");
             //console.log(err);
             setTimeout(startingMysql, 5000);
         } else {
             console.log("Connected to Mysql!");
+            checkDataBase();
+            
         }
     });
 }
 
+
+ /* ---------------------------  SEED DATABASE  ------------------------------------- */
+
+checkDataBase = () => {
+    let query = "select schema_name from information_schema.schemata where schema_name = 'fieldservice';";
+    con.query(query, (error, result) => {
+        if(result.length == 0) {
+            console.log('Database not created. Creating fieldservice');
+            con.query('CREATE DATABASE fieldservice', (error, result) => {
+                if (error) throw error;
+                console.log("fieldservice db created !");
+                con.query('USE fieldservice', (error, result) => {
+                    if (error) throw error;
+                    console.log('Changed to field service !');
+                    seedDataBase();
+                })                
+            })
+        } else {
+            con.query('USE fieldservice', (error, result) => {
+                if (error) throw error;
+                console.log('Changed to field service !');
+                seedDataBase();
+            })            
+        }
+    })
+}
+
+
+seedDataBase = () => {
+    console.log('------------------ Seeding started --------------------------');
+    var query = '';
+    var rl = readline.createInterface({
+        input: fs.createReadStream('./auxiliar/fs-template.sql'),
+        terminal: false
+    })
+    
+    rl.on('line', (line) => {
+        let chunk = line.toString('ascii');
+        if (!chunk.includes('--') && !chunk.includes('/*')) {
+            query += chunk;
+            if (chunk.includes(';')) {
+                // console.log('Chunk :', chunk);
+                // console.log('Query :', query, '\n');
+                // query = '';
+                console.log('Query :', query);
+                con.query(query, (err, res) => {
+                    if(err) throw err;                    
+                    query = '';
+                })
+            }
+        } 
+    })
+    rl.on('close', () => {
+        console.log('DB Seeded !');
+        console.log('------------------ Seeding finished --------------------------');
+    })
+ }
+
+
 // Configurar mas tarde CORS
 router.use(cors());
+
+
+
 
 /* -------------------------------- ENDPOINTS -------------------------------------  */
 

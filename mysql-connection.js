@@ -1,8 +1,9 @@
 const mysql = require('mysql');
 
-const startingMysql = () => {    
+const startingMysql = () => {
+    const adress = process.env.DOCKER_DEPLOY? 'cmms-db': '127.0.0.1';    
     var con = mysql.createConnection({
-        host: 'localhost',
+        host: adress,
         database: 'fieldservice',
         user: 'root',
         password: 'admin',
