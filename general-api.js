@@ -19,6 +19,7 @@ const startingMysql = () => {
     con = mysql.createConnection({
         host: adress,
         user: 'root',
+        database: 'fieldservice',
         password: process.env.DB_PASSWORD,
         port: 3306,
         insecureAuth: true
