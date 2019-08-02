@@ -157,6 +157,8 @@ router.post('/registerApp', (req, res, err) => {
 router.post('/loginApp', (req, res, err) => {
     let query = "SELECT * FROM usuarioapp WHERE CedulaCiudadania='" + req.body.user + "';";
     con.query(query, (err, result) => {
+        if(err) console.log('Error: ', err)
+        console.log(result);
         if (result.length == 0) return res.json("Usuario no encontrado");
         let comparePassword = bcrypt.compareSync(req.body.password, result[0].password);
         if (!comparePassword) return res.json("Contraseña incorrecta");
