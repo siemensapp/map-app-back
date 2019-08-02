@@ -32,7 +32,6 @@ const startingMysql = () => {
             setTimeout(startingMysql, 5000);
         } else {
             console.log("Connected to Mysql!");
-            checkDataBase();
             
         }
     });
