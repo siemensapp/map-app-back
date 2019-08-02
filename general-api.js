@@ -143,7 +143,7 @@ router.post('/registerDesktop', (req, res, err) => {
 router.post('/registerApp', (req, res, err) => {
     let CedulaCiudadania = req.body.cedula;
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
-    let query = "INSERT INTO UsuarioApp (CedulaCiudadania, password) values('" + CedulaCiudadania + "','" + hashedPassword + "');";
+    let query = "INSERT INTO usuarioapp (CedulaCiudadania, password) values('" + CedulaCiudadania + "','" + hashedPassword + "');";
     console.log(query);
     con.query(query, (error, result) => {
         if (error) return res.json("Error en la base de datos");
@@ -155,7 +155,7 @@ router.post('/registerApp', (req, res, err) => {
 
 // El usuario se logea a traves de este endpoint
 router.post('/loginApp', (req, res, err) => {
-    let query = "SELECT * FROM UsuarioApp WHERE CedulaCiudadania='" + req.body.user + "';";
+    let query = "SELECT * FROM usuarioapp WHERE CedulaCiudadania='" + req.body.user + "';";
     con.query(query, (err, result) => {
         if (result.length == 0) return res.json("Usuario no encontrado");
         let comparePassword = bcrypt.compareSync(req.body.password, result[0].password);
