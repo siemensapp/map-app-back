@@ -272,11 +272,16 @@ router.post("/createWorker", (req, res, err) => {
     console.log(imagePath);
     con.query(query, async (error, result, fields) => {
         if (data.Foto) {
+            console.log(" ENTRA A QUERY ");
+            console.log(error);
+            console.log(" MOSTRO ERROR ")
             auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
                 console.log(imageResult)
                 res.json(imageResult);
             })
         } else res.json((error) ? "false" : "true");
+        console.log(error);
+        console.log("SALE");
     })
 });
 
