@@ -239,10 +239,15 @@ router.post("/setAssignment", (req, res, err) => {
 
 
 // Borra usuario dado un id y tambien sus asignaciones
+//modificado para borrar por no,bre y no por id, workerId = NombreE
 router.get("/deleteWorker/:workerId", (req, res, err) => {
     console.log("Entered delete");
-    con.query("delete from Especialista Where IdEspecialista=" + req.params.workerId + ";", (error, result, fields) => {
+    con.query("delete from Especialista Where NombreE='" + req.params.workerId + "';", (error, result, fields) => {
+        console.log("---------------");
+        console.log(req.params.workerId);
+        console.log("---------------");
         res.json((error) ? "false" : "true")
+        console.log(error);
     })
 });
 
