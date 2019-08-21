@@ -453,6 +453,40 @@ router.post("/deleteAssignment/", (req, res, err) => {
     }
 });
 
+
+//Edita una asignacion dada
+router.post("/updateAssignment/", (req, res, err) =>{
+    let body = req.body;
+    let query = 'UPDATE asignacion SET IdEspecialista='+body.IdEspecialista+' , '+
+                                        'IdStatus='+body.IdStatus+', '+
+                                        'PCFSV="'+body.PCFSV+'", '+
+                                        'IdEmpresa='+body.IdEmpresa+', '+
+                                        'NombrePlanta="'+body.NombrePlanta+'", '+
+                                        'CiudadPlanta="'+body.CiudadPlanta+'", '+
+                                        'StatusAsignacion='+body.StatusAsignacion+', '+
+                                        'FechaInicio="'+body.FechaInicio+'", '+
+                                        'FechaFin="'+body.FechaFin+'", '+
+                                        'CoordenadasSitio="'+body.CoordenadasSitio+'", '+
+                                        'CoordenadasEspecialista="'+body.CoordenadasEspecialista+'", '+
+                                        'NombreSitio="'+body.NombreSitio+'", '+
+                                        'NombreContacto="'+body.NombreContacto+'", '+
+                                        'TelefonoContacto="'+body.TelefonoContacto+'", '+
+                                        'EmailContacto="'+body.EmailContacto+'", '+
+                                        'Descripcion="'+body.Descripcion+' " WHERE IdAsignacion='+body.IdAsignacion+ ';';
+                                        console.log("QUERY");
+                                        console.log(query);
+    con.query(query, (error, result) => {
+        if (error){ 
+            console.log(error);
+            return res.json("Error - No se pudo hacer edicion");
+        }else{
+            console.log("Query enviado")
+            return res.json(result);
+        }
+    })
+})
+
+
 // Trae las asignaciones del mes
 router.get("/getMonthAssignments/:date", (req, res, err) => {
     let date = req.params.date;
@@ -522,7 +556,8 @@ router.get('/getDeletedAssignments/:date/:text', (req, res, err) => {
 })
 
 router.post("/updateCoords", (req, res) => {
-    let data = req.body;
+    let body = req.body;
+
     console.log("Coords", data);
     let query = "UPDATE Asignacion SET CoordenadasEspecialista='" + data.Coords + "' WHERE IdAsignacion=" + data.IdAsignacion + ";";
     if (data.Coords.length != 0) {
