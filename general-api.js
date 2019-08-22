@@ -478,10 +478,10 @@ router.post("/updateAssignment/", (req, res, err) =>{
     con.query(query, (error, result) => {
         if (error){ 
             console.log(error);
-            return res.json("Error - No se pudo hacer edicion");
+            return res.json("false");
         }else{
             console.log("Query enviado")
-            return res.json(result);
+            return res.json("true");
         }
     })
 })
