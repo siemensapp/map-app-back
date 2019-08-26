@@ -290,11 +290,23 @@ router.post("/createWorker", (req, res, err) => {
     })
 });
 
+
+router.get("/getCedulaBefore/:workerId",(req,res, err) => {
+    let data = req.body;
+    var anteriorQuery = "SELECT CedulaCiudadania FROM Especialista WHERE IdEspecialista=" + IdEspecialista+";";
+    con.query(anteriorQuery, (error, result) => {
+        if(data.CedulaCiudadania){
+
+        }
+    })
+});
+
 // Sirve para editar usuarios ya existentes
+//actualiza la info tambien en el usuario app de manera asincrona
 router.post("/editWorker", (req, res, err) => {
     let data = req.body;
-
     let IdEspecialista = data.IdEspecialista;
+    let antiguaCedula;
     let NombreE = data.NombreE;
     let Celular = data.Celular;
     let IdTecnica = data.IdTecnica;
@@ -306,21 +318,49 @@ router.post("/editWorker", (req, res, err) => {
     let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
     // Image route
     let base64String, base64Image, imagePath;
-    var query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "' WHERE IdEspecialista=" + IdEspecialista;
-    if (data.Foto) {
-        base64String = data.Foto;
-        base64Image = base64String.split(';base64,').pop();
-        imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
-        query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "' WHERE IdEspecialista=" + IdEspecialista;
-    }
-    console.log(imagePath);
-    con.query(query, async (error, result, fields) => {
+
+    var anteriorQuery = "SELECT CedulaCiudadania FROM Especialista WHERE IdEspecialista=" + IdEspecialista+";";
+    
+    var promesa = new Promise(function(resolve, reject){
+        con.query(anteriorQuery,(err, result) => {
+            if(err){
+                console.log("se ha presentado un error al solicitar cedula");
+            }else{
+                antiguaCedula =result[0].CedulaCiudadania;
+                console.log("exito al solicitar cedula");   
+                resolve(antiguaCedula);
+            }  
+        })
+    });
+
+    promesa.then(function(antiguaCedula){
+        var query2 = "UPDATE usuarioapp SET CedulaCiudadania='" + CedulaCiudadania + "' WHERE CedulaCiudadania='"+antiguaCedula+ "';";
+        con.query(query2,(error, result) => {
+            if (error){
+                res.json("false");
+                console.log("error al actualizar cedula");
+            }else{
+                res.json("true");
+                console.log("actualizado user app");
+            }
+        })
+    }).then(function(antiguaCedula){
+        var query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "' WHERE IdEspecialista=" + IdEspecialista;
         if (data.Foto) {
-            auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
-                res.json(imageResult);
-            })
-        } else res.json((error) ? "false" : "true");
-    })
+            base64String = data.Foto;
+            base64Image = base64String.split(';base64,').pop();
+            imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
+            query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "' WHERE IdEspecialista=" + IdEspecialista;
+        }
+        console.log(imagePath);
+        con.query(query, async(error, result, fields) => {
+            if (data.Foto) {
+                auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
+                    res.json(imageResult);
+                })
+            } else res.json((error) ? "false" : "true");
+        })
+    });
 });
 
 
@@ -556,10 +596,11 @@ router.get('/getDeletedAssignments/:date/:text', (req, res, err) => {
 })
 
 router.post("/updateCoords", (req, res) => {
-    let body = req.body;
-
+    let data = req.body;
+    console.log("COORDENADAS ESPECIALISTA");
     console.log("Coords", data);
     let query = "UPDATE Asignacion SET CoordenadasEspecialista='" + data.Coords + "' WHERE IdAsignacion=" + data.IdAsignacion + ";";
+    
     if (data.Coords.length != 0) {
         con.query(query, (error, result) => {
             console.log("Dentro de update");
