@@ -302,7 +302,7 @@ router.get("/getCedulaBefore/:workerId",(req,res, err) => {
 });
 
 // Sirve para editar usuarios ya existentes
-//actualiza la info tambien en el usuario app de manera asincrona
+//actualiza la info tambien en el usuario app de manera asincrona, cedula es el username del movil
 router.post("/editWorker", (req, res, err) => {
     let data = req.body;
     let IdEspecialista = data.IdEspecialista;
