@@ -68,7 +68,7 @@ router.post('/registerDesktop', (req, res, err) => {
     con.query(query, (error, result) => {
         if (error) return res.json("Error en la base de datos");
         else {
-            res.json("Registro completado");
+            res.json("true");
         }
     })
 })
@@ -82,7 +82,7 @@ router.post('/registerApp', (req, res, err) => {
     con.query(query, (error, result) => {
         if (error) return res.json("Error en la base de datos");
         else {
-            res.json("Registro completado");
+            res.json("true");
         }
     })
 })
@@ -102,6 +102,10 @@ router.post('/loginApp', (req, res, err) => {
         let userDataQuery = "SELECT NombreE, Foto from Especialista Where CedulaCiudadania='" + req.body.user + "';";
         con.query(userDataQuery, (err, result) => {
             console.log(result);
+            if(result[0] == undefined || err){
+                res.json("No esta registrado");
+                console.log("ERROR AL TRAER ESPECIALISTA");
+            }else{
             return res.send({
                 auth: true,
                 token: token,
@@ -109,7 +113,8 @@ router.post('/loginApp', (req, res, err) => {
                 NombreE: result[0]['NombreE'],
                 NombreColaborador: result[0]['NombreE'],
                 Foto: auxImage.convertBase64(result[0]['Foto'])
-            })
+                })
+            }
         })
     })
 })
@@ -239,17 +244,35 @@ router.post("/setAssignment", (req, res, err) => {
 
 
 // Borra usuario dado un id y tambien sus asignaciones
-//modificado para borrar por no,bre y no por id, workerId = NombreE
+//modificado para borrar por nombre y no por id, workerId = NombreE
 router.get("/deleteWorker/:workerId", (req, res, err) => {
     console.log("Entered delete");
     con.query("delete from Especialista Where NombreE='" + req.params.workerId + "';", (error, result, fields) => {
-        console.log("---------------");
-        console.log(req.params.workerId);
-        console.log("---------------");
+       // console.log("---------------");
+        //console.log(req.params.workerId);
+        //console.log("---------------");
         res.json((error) ? "false" : "true")
         console.log(error);
     })
 });
+
+
+//Borra un usuarioApp por la cedula
+router.get("/deleteUserApp/:CedulaCiudadania", (req, res, err) => {
+    console.log("Deleting user app start");
+    console.log(req.params.CedulaCiudadania);
+    con.query("DELETE FROM usuarioapp WHERE CedulaCiudadania='"+req.params.CedulaCiudadania+"';", (error, result, fields) => {
+        if(error){
+            res.json("false");
+            console.log("Error al eliminar user app");
+        }else{
+            res.json("true");
+            console.log("User app eliminado");
+        }
+    })
+});
+
+
 
 // Crea nuevos trabajadores
 router.post("/createWorker", (req, res, err) => {
@@ -290,7 +313,9 @@ router.post("/createWorker", (req, res, err) => {
     })
 });
 
-// Sirve para editar usuarios ya existentes
+
+
+//Para editar usuarios en desktop
 router.post("/editWorker", (req, res, err) => {
     let data = req.body;
 
@@ -321,7 +346,13 @@ router.post("/editWorker", (req, res, err) => {
             })
         } else res.json((error) ? "false" : "true");
     })
-});
+})
+    
+    
+   
+
+    
+        
 
 
 // Trae asignaciones dada una fecha (mes y año) del cronograma
@@ -556,10 +587,11 @@ router.get('/getDeletedAssignments/:date/:text', (req, res, err) => {
 })
 
 router.post("/updateCoords", (req, res) => {
-    let body = req.body;
-
+    let data = req.body;
+    console.log("COORDENADAS ESPECIALISTA");
     console.log("Coords", data);
     let query = "UPDATE Asignacion SET CoordenadasEspecialista='" + data.Coords + "' WHERE IdAsignacion=" + data.IdAsignacion + ";";
+    
     if (data.Coords.length != 0) {
         con.query(query, (error, result) => {
             console.log("Dentro de update");
