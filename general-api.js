@@ -74,17 +74,37 @@ router.post('/registerDesktop', (req, res, err) => {
 })
 
 // Registrar un nuevo usuario de App, SOLO PARA PRUEBAS Y USO DE BCRYPT
+//se revisa que no hayan duplicados de IdEspecialista
 router.post('/registerApp', (req, res, err) => {
     let CedulaCiudadania = req.body.cedula;
+    let IdEspecialista = req.body.CedulaCiudadania;
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
-    let query = "INSERT INTO UsuarioApp (CedulaCiudadania, password) values('" + CedulaCiudadania + "','" + hashedPassword + "');";
-    console.log(query);
-    con.query(query, (error, result) => {
-        if (error) return res.json("Error en la base de datos");
-        else {
-            res.json("true");
+    var queryDuplicado = "SELECT CedulaCiudadania FROM Especialista WHERE IdEspecialista="+IdEspecialista+";";
+    con.query(queryDuplicado, (error, result) => {
+        if(error){
+            console.log("Error consultando duplicado ID");
+        }else{
+            console.log("Consulta hecha duplicado");
+            if(result.length == 0){
+                //res.json("true");
+                console.log("No hay duplicado ID");
+                let query = "INSERT INTO UsuarioApp (CedulaCiudadania, password) values('" + CedulaCiudadania + "','" + hashedPassword + "');";
+                console.log(query);
+                con.query(query, (error, result) => {
+                    if (error){
+                        console.log("Error en la base de datos");
+                    } else {
+                         res.json("true");
+                    }
+                })
+            }else{
+                console.log("ERROR ID duplicado");
+                res.json("duplicated");
+            }
         }
     })
+    
+    
 })
 
 // El usuario se logea a traves de este endpoint
@@ -275,6 +295,7 @@ router.get("/deleteUserApp/:CedulaCiudadania", (req, res, err) => {
 
 
 // Crea nuevos trabajadores
+//se revisa que no hayan duplicados de IdEspecialista
 router.post("/createWorker", (req, res, err) => {
     let data = req.body;
 
@@ -290,27 +311,47 @@ router.post("/createWorker", (req, res, err) => {
     let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
     // Image route
     let base64String, base64Image, imagePath;
-    var query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica+ "')";
-    if (data.Foto) {
-        base64String = data.Foto;
-        base64Image = base64String.split(';base64,').pop();
-        imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
-        query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "')";
-    }
-    console.log(imagePath);
-    con.query(query, async (error, result, fields) => {
-        if (data.Foto) {
-            console.log(" ENTRA A QUERY ");
-            console.log(error);
-            console.log(" MOSTRO ERROR ")
-            auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
-                console.log(imageResult)
-                res.json(imageResult);
-            })
-        } else res.json((error) ? "false" : "true");
-        console.log(error);
-        console.log("SALE");
+
+    var queryDuplicado = "SELECT CedulaCiudadania FROM Especialista WHERE IdEspecialista="+IdEspecialista+";";
+    con.query(queryDuplicado, (error, result) => {
+        if(error){
+            console.log("Error consultando duplicado ID");
+        }else{
+            console.log("Consulta hecha duplicado");
+            if(result.length == 0){
+                res.json("true");
+                console.log("No hay duplicado ID");
+                var query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica+ "')";
+                if (data.Foto) {
+                    base64String = data.Foto;
+                    base64Image = base64String.split(';base64,').pop();
+                    imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
+                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "')";
+                }
+                console.log(imagePath);
+                con.query(query, async (error, result, fields) => {
+                    if (data.Foto) {
+                        console.log(" ENTRA A QUERY ");
+                        console.log(error);
+                        console.log(" MOSTRO ERROR ")
+                        auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
+                            console.log(imageResult)
+                            res.json(imageResult);
+                        })
+                    } else res.json((error) ? "false" : "true");
+                    console.log(error);
+                    console.log("SALE");
+                })
+            }else{
+                console.log("ERROR ID duplicado");
+                res.json("duplicated");
+            }
+        }
     })
+
+
+
+    
 });
 
 
@@ -349,7 +390,7 @@ router.post("/editWorker", (req, res, err) => {
     });  
     
     promesaInicial.then((result) => {
-        console.log("SEGUNDO QUERY**************");
+        //console.log("SEGUNDO QUERY**************");
         var antiguaCedula = result[0]['CedulaCiudadania'];
         let hashedPassword = bcrypt.hashSync(CedulaCiudadania, 8);
         var query2 = "UPDATE usuarioapp SET CedulaCiudadania='" + CedulaCiudadania + "', password='"+ hashedPassword + "' WHERE CedulaCiudadania='"+antiguaCedula+ "';";
