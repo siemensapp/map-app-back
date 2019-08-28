@@ -331,29 +331,57 @@ router.post("/editWorker", (req, res, err) => {
     let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
     // Image route
     let base64String, base64Image, imagePath;
-    var query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "' WHERE IdEspecialista=" + IdEspecialista;
-    if (data.Foto) {
-        base64String = data.Foto;
-        base64Image = base64String.split(';base64,').pop();
-        imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
-        query = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "' WHERE IdEspecialista=" + IdEspecialista;
-    }
-    console.log(imagePath);
-    con.query(query, async (error, result, fields) => {
+
+    let promesaInicial = new Promise((resolve, reject) => {
+    var query = "SELECT CedulaCiudadania FROM Especialista WHERE IdEspecialista=" + IdEspecialista+";";
+        con.query(query, (error, result) => {
+            if(error){
+                console.log("Error al traer cedula");
+                //res.json("false");
+                reject();
+            }else{
+                console.log(result[0]['CedulaCiudadania']);
+                console.log("Exito al traer cedula");
+                //res.json("true");        
+                resolve(result);
+            }
+        })
+    });  
+    
+    promesaInicial.then((result) => {
+        console.log("SEGUNDO QUERY**************");
+        var antiguaCedula = result[0]['CedulaCiudadania'];
+        let hashedPassword = bcrypt.hashSync(CedulaCiudadania, 8);
+        var query2 = "UPDATE usuarioapp SET CedulaCiudadania='" + CedulaCiudadania + "', password='"+ hashedPassword + "' WHERE CedulaCiudadania='"+antiguaCedula+ "';";
+        console.log(query2);
+        con.query(query2, (error2, result2) => {
+            if(error2){
+                console.log("Error al actualizar cedula AppMovil");
+                //res.json("false");
+            }else{
+                console.log("Se ha actualizado exitosamente AppMovil");
+                //res.json("true");
+            }
+        })
+    }).then((result) => {
+        var query3 = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "' WHERE IdEspecialista=" + IdEspecialista;
         if (data.Foto) {
-            auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
-                res.json(imageResult);
-            })
-        } else res.json((error) ? "false" : "true");
-    })
+            base64String = data.Foto;
+            base64Image = base64String.split(';base64,').pop();
+            imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
+            query3 = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "' WHERE IdEspecialista=" + IdEspecialista;
+        }
+        //console.log(imagePath);
+        con.query(query3, async (error, result, fields) => {
+            if (data.Foto) {
+                auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
+                    res.json(imageResult);
+                })
+            } else res.json((error) ? "false" : "true");
+        })
+    });
 })
     
-    
-   
-
-    
-        
-
 
 // Trae asignaciones dada una fecha (mes y año) del cronograma
 router.get('/getAssignments/:date', (req, res, err) => {
