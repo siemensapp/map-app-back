@@ -98,7 +98,7 @@ router.post('/registerApp', (req, res, err) => {
                     }
                 })
             }else{
-                console.log("ERROR ID duplicado");
+                console.log("El ID es duplicado");
                 res.json("duplicated");
             }
         }
@@ -326,6 +326,9 @@ router.post("/createWorker", (req, res, err) => {
                     base64String = data.Foto;
                     base64Image = base64String.split(';base64,').pop();
                     imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
+                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "')";
+                }else{
+                    imagePath = variables.serverDirectoryWin + "images\\\\default-user.png";
                     query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "')";
                 }
                 console.log(imagePath);
