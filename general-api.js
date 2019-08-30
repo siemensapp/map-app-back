@@ -7,7 +7,8 @@ const jwt = require('jsonwebtoken');
 const auxImage = require('./auxiliar/imageFunctions');
 const verifyToken = require('./auxiliar/verifyToken');
 const auxPush = require('./auxiliar/pushFunction');
-
+var nodemailer = require ('nodemailer');
+var smtpTransport = require('nodemailer-smtp-transport');
 
 const router = express.Router();
 
@@ -246,6 +247,14 @@ router.post("/setAssignment", (req, res, err) => {
         let PCFSV = data.PCFSV;
         let IdEmpresa;
 
+        let tipoServicio;
+        if(PCFSV == 'P'){tipoServicio = 'Preventivo planeado'}
+        else if(PCFSV == 'C'){tipoServicio = 'Correctivo planeado'}
+        else if(PCFSV == 'F'){tipoServicio = 'Pruebas FAT'}
+        else if(PCFSV == 'S'){tipoServicio = 'Puesta en servicio'}
+        else if(PCFSV == 'V'){tipoServicio = 'Soporte ventas'}
+        else{tipoServicio = 'OTRO'}
+
         let query1 = "SELECT IdEmpresa FROM Empresa WHERE NombreEmpresa='" + NombreCliente + "';";
         con.query(query1, (error, result) => {
             console.log(query1);
@@ -255,7 +264,83 @@ router.post("/setAssignment", (req, res, err) => {
             con.query(insertQuery, (error, result) => {
                 console.log(error);
                 // auxPush.notifNewAssignment(fakeDatabase['App'], 'newAssignment');
-                return res.json((error) ? "false" : "true")
+                if(error){
+                    res.json("false")
+                }else{
+                    let transporter = nodemailer.createTransport({
+                        service: "Gmail",
+                        secure: false,
+                        port: 25,
+                        auth:{
+                            user:"asiganacionsiemens@gmail.com",
+                            pass:"Siemens123.abc$",
+                        },
+                        tlsl:{
+                            rejectUnauthorized:false
+                        }
+                    });
+
+                    let HelperOptions={
+                        from:"'Asignación Siemens' <asignacionsiemens@gmail.com",
+                        to: "nicolas.ricardo_enciso@siemens.com",
+                        subject: "Nueva asignación Field Service Siemens",
+                        text:"Tiene una nueva asignación desde SISTEMA PARA GESTION DE FIELD SERVICE: ",
+                        html: 
+                              "<h2>Asignación</h2>"+
+                              "<p>Usted ha recibido una asignación de trabajo field service, a continuación podrá ver la información al respecto:  </p>"+
+                              '<table style="width:100%; border: 1px solid black;border-collapse: collapse;">'+
+                                    "<tr>"+
+                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Campo</th>"+
+                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Informacion</th>"+
+                                    "</tr>"+
+                                    "<tr>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre del cliente</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreCliente+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre planta</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombrePlanta+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Ciudad planta</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+CiudadPlanta+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Telefono contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+TelefonoContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Email Contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+EmailContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Descripcion</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+Descripcion+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Tipo de servicio</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+tipoServicio+"</td>"+
+                                    "</tr>"+
+                                "</table>"+
+                                "<br>"+
+                                "<p>Puede consultar la asignacion completa en el aplicativo Movil con su cuenta</p>"
+
+                    }
+
+                    transporter.sendMail(HelperOptions, function(err,res){
+                        if (err){
+                            console.log(err);
+                            console.log("No se envio**********");
+                        }else{
+                            console.log("Si se envio");
+                        }
+                    });
+                    return res.json("true");
+                }
             });
         });
     })
