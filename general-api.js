@@ -203,7 +203,7 @@ router.get("/workersList/:date", (req, res, err) => {
     var workersQuery;
     let fecha = req.params.date;
     //let query = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT,  Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE '" + fecha + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin";
-    let query = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista as id, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT, IFNULL((SELECT Status.NombreS FROM Status INNER JOIN Asignacion ON Status.IdStatus=Asignacion.IdStatus WHERE IdEspecialista=id AND '"+fecha+"' BETWEEN FechaInicio AND FechaFin), 'Disponible') as Estado, IFNULL((SELECT Asignacion.IdAsignacion FROM Asignacion WHERE IdEspecialista=id AND '"+fecha+"' BETWEEN FechaInicio AND FechaFin), null) as Asignacion FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica;";
+    let query = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista as id, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT, Especialista.email, IFNULL((SELECT Status.NombreS FROM Status INNER JOIN Asignacion ON Status.IdStatus=Asignacion.IdStatus WHERE IdEspecialista=id AND '"+fecha+"' BETWEEN FechaInicio AND FechaFin), 'Disponible') as Estado, IFNULL((SELECT Asignacion.IdAsignacion FROM Asignacion WHERE IdEspecialista=id AND '"+fecha+"' BETWEEN FechaInicio AND FechaFin), null) as Asignacion FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica;";
     con.query(query, (error, result, fields) => {
         if (error) throw error;
         workersQuery = result;
@@ -258,90 +258,22 @@ router.post("/setAssignment", (req, res, err) => {
         let query1 = "SELECT IdEmpresa FROM Empresa WHERE NombreEmpresa='" + NombreCliente + "';";
         con.query(query1, (error, result) => {
             console.log(query1);
-            if (error) console.log("ERROR");
-            IdEmpresa = result[0]['IdEmpresa'];
-            let insertQuery = "INSERT INTO Asignacion (PCFSV, IdEspecialista, IdStatus, StatusAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES('" + PCFSV + "', " + IdEspecialista + "," + IdStatus + ", 0, " + IdEmpresa + ", '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
-            con.query(insertQuery, (error, result) => {
-                console.log(error);
-                // auxPush.notifNewAssignment(fakeDatabase['App'], 'newAssignment');
-                if(error){
-                    res.json("false")
-                }else{
-                    let transporter = nodemailer.createTransport({
-                        service: "Gmail",
-                        secure: false,
-                        port: 25,
-                        auth:{
-                            user:"asiganacionsiemens@gmail.com",
-                            pass:"Siemens123.abc$",
-                        },
-                        tlsl:{
-                            rejectUnauthorized:false
-                        }
-                    });
-
-                    let HelperOptions={
-                        from:"'Asignación Siemens' <asignacionsiemens@gmail.com",
-                        to: "nicolas.ricardo_enciso@siemens.com",
-                        subject: "Nueva asignación Field Service Siemens",
-                        text:"Tiene una nueva asignación desde SISTEMA PARA GESTION DE FIELD SERVICE: ",
-                        html: 
-                              "<h2>Asignación</h2>"+
-                              "<p>Usted ha recibido una asignación de trabajo field service, a continuación podrá ver la información al respecto:  </p>"+
-                              '<table style="width:100%; border: 1px solid black;border-collapse: collapse;">'+
-                                    "<tr>"+
-                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Campo</th>"+
-                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Informacion</th>"+
-                                    "</tr>"+
-                                    "<tr>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre del cliente</td>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreCliente+"</td>"+
-                                    "</tr>"+
-                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre planta</td>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombrePlanta+"</td>"+
-                                    "</tr>"+
-                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Ciudad planta</td>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+CiudadPlanta+"</td>"+
-                                    "</tr>"+
-                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre contacto</td>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreContacto+"</td>"+
-                                    "</tr>"+
-                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Telefono contacto</td>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+TelefonoContacto+"</td>"+
-                                    "</tr>"+
-                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Email Contacto</td>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+EmailContacto+"</td>"+
-                                    "</tr>"+
-                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Descripcion</td>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+Descripcion+"</td>"+
-                                    "</tr>"+
-                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Tipo de servicio</td>"+
-                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+tipoServicio+"</td>"+
-                                    "</tr>"+
-                                "</table>"+
-                                "<br>"+
-                                "<p>Puede consultar la asignacion completa en el aplicativo Movil con su cuenta</p>"
-
+            if (error){
+                console.log("ERROR");
+            }else{
+                IdEmpresa = result[0]['IdEmpresa'];
+                let insertQuery = "INSERT INTO Asignacion (PCFSV, IdEspecialista, IdStatus, StatusAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES('" + PCFSV + "', " + IdEspecialista + "," + IdStatus + ", 0, " + IdEmpresa + ", '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
+                con.query(insertQuery, (error, result) => {
+                    console.log(error);
+                    // auxPush.notifNewAssignment(fakeDatabase['App'], 'newAssignment');
+                    if(error){
+                        res.json("false")
+                    }else{
+                        res.json("true");
                     }
-
-                    transporter.sendMail(HelperOptions, function(err,res){
-                        if (err){
-                            console.log(err);
-                            console.log("No se envio**********");
-                        }else{
-                            console.log("Si se envio");
-                        }
-                    });
-                    return res.json("true");
-                }
-            });
+                });
+            }
+            
         });
     })
 });
@@ -394,6 +326,7 @@ router.post("/createWorker", (req, res, err) => {
     let CedulaCiudadania = data.CedulaCiudadania;
     let LugarExpedicion = data.LugarExpedicion;
     let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
+    let email = data.email;
     // Image route
     let base64String, base64Image, imagePath;
 
@@ -406,15 +339,15 @@ router.post("/createWorker", (req, res, err) => {
             if(result.length == 0){
                 res.json("true");
                 console.log("No hay duplicado ID");
-                var query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica+ "')";
+                var query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, email) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica+ "','" + email + "')";
                 if (data.Foto) {
                     base64String = data.Foto;
                     base64Image = base64String.split(';base64,').pop();
                     imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
-                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "')";
+                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto, email) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + email + "')";
                 }else{
                     imagePath = variables.serverDirectoryWin + "images\\\\default-user.png";
-                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "')";
+                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto, email) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+  "','" + email +"')";
                 }
                 console.log(imagePath);
                 con.query(query, async (error, result, fields) => {
@@ -460,6 +393,7 @@ router.post("/editWorker", (req, res, err) => {
     let TarjetaIngresoArgos = data.TarjetaIngresoArgos;
     // Image route
     let base64String, base64Image, imagePath;
+    let email = data.email;
 
     let promesaInicial = new Promise((resolve, reject) => {
     var query = "SELECT CedulaCiudadania FROM Especialista WHERE IdEspecialista=" + IdEspecialista+";";
@@ -493,12 +427,12 @@ router.post("/editWorker", (req, res, err) => {
             }
         })
     }).then((result) => {
-        var query3 = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "' WHERE IdEspecialista=" + IdEspecialista;
+        var query3 = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',email='" + email + "' WHERE IdEspecialista=" + IdEspecialista;
         if (data.Foto) {
             base64String = data.Foto;
             base64Image = base64String.split(';base64,').pop();
             imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
-            query3 = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "' WHERE IdEspecialista=" + IdEspecialista;
+            query3 = "UPDATE Especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "',email='" + email +"' WHERE IdEspecialista=" + IdEspecialista;
         }
         //console.log(imagePath);
         con.query(query3, async (error, result, fields) => {
