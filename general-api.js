@@ -171,7 +171,7 @@ router.post('/loginDesktop', (req, res, err) => {
 router.get("/workers/:date", (req, res, err) => {
     console.log("Connected to get")
     let fecha = req.params.date;
-    var workersQuery, query = "select Especialista.NombreE, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and '"+fecha+"' between fechainicio and fechafin";
+    let workersQuery, query = "select Especialista.NombreE, Asignacion.CoordenadasEspecialista from asignacion inner join especialista on Especialista.idespecialista = asignacion.idespecialista where idstatus=1 and '"+fecha+"' between fechainicio and fechafin";
     console.log(query);
     con.query(query, (error, result, fields) => {
             if (error) throw error;
@@ -203,10 +203,12 @@ router.get("/workersList/:date", (req, res, err) => {
     var workersQuery;
     let fecha = req.params.date;
     //let query = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT,  Asignacion.IdAsignacion, Status.NombreS from Especialista inner join Tecnica on Especialista.IdTecnica=Tecnica.IdTecnica inner join Asignacion on Especialista.IdEspecialista = Asignacion.IdEspecialista inner join status on Asignacion.IdStatus=Status.IdStatus WHERE '" + fecha + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin";
-    let query = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista as id, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT, Especialista.email, IFNULL((SELECT Status.NombreS FROM Status INNER JOIN Asignacion ON Status.IdStatus=Asignacion.IdStatus WHERE IdEspecialista=id AND '"+fecha+"' BETWEEN FechaInicio AND FechaFin), 'Disponible') as Estado, IFNULL((SELECT Asignacion.IdAsignacion FROM Asignacion WHERE IdEspecialista=id AND '"+fecha+"' BETWEEN FechaInicio AND FechaFin), null) as Asignacion FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica;";
-    con.query(query, (error, result, fields) => {
+    let query2 = "SELECT Especialista.NombreE, Especialista.Celular, Especialista.FechaNacimiento, Especialista.CeCo, Especialista.Foto, Especialista.IdEspecialista as id, Especialista.GID, Especialista.CedulaCiudadania, Especialista.LugarExpedicion, Especialista.TarjetaIngresoArgos, Especialista.IdTecnica, Tecnica.NombreT, Especialista.email, IFNULL((SELECT Status.NombreS FROM Status INNER JOIN Asignacion ON Status.IdStatus=Asignacion.IdStatus WHERE IdEspecialista=id AND '"+fecha+"' BETWEEN FechaInicio AND FechaFin), 'Disponible') as Estado, IFNULL((SELECT Asignacion.IdAsignacion FROM Asignacion WHERE IdEspecialista=id AND '"+fecha+"' BETWEEN FechaInicio AND FechaFin), null) as Asignacion FROM Especialista INNER JOIN Tecnica ON Especialista.IdTecnica=Tecnica.IdTecnica;";
+    con.query(query2, (error, result) => {
         if (error) throw error;
         workersQuery = result;
+        console.log("RESULT *************");
+        console.log(result);
         for (let worker of workersQuery) {
             worker["FotoBase64"] = auxImage.convertBase64(worker);
         }
@@ -230,9 +232,11 @@ router.post("/setAssignment", (req, res, err) => {
     let FechaInicio = data.FechaInicio;
     let FechaFin = data.FechaFin;
     let checkQuery = "SELECT * FROM Asignacion WHERE IdEspecialista = " + IdEspecialista + " AND ('" + FechaInicio + "' BETWEEN FechaInicio AND FechaFin OR '" + FechaFin + "' BETWEEN FechaInicio AND FechaFin)";
+    
     con.query(checkQuery, (error, result) => {
         if (error) return res.json("false checkquery");
         if (result.length !== 0) return res.json("existe");
+        console.log("PRIMER QUERY ASIGMENT");
         let IdEspecialista = data.IdEspecialista;
         let IdStatus = data.IdStatus;
         let NombreCliente = data.NombreCliente;
@@ -261,9 +265,11 @@ router.post("/setAssignment", (req, res, err) => {
             if (error){
                 console.log("ERROR");
             }else{
+                console.log("SEGUNDO QUERY ASSIGNMENT");
                 IdEmpresa = result[0]['IdEmpresa'];
                 let insertQuery = "INSERT INTO Asignacion (PCFSV, IdEspecialista, IdStatus, StatusAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES('" + PCFSV + "', " + IdEspecialista + "," + IdStatus + ", 0, " + IdEmpresa + ", '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
                 con.query(insertQuery, (error, result) => {
+                    console.log("TERCER QUERY ASSIGNMENT");
                     console.log(error);
                     // auxPush.notifNewAssignment(fakeDatabase['App'], 'newAssignment');
                     if(error){
@@ -275,10 +281,123 @@ router.post("/setAssignment", (req, res, err) => {
             }
             
         });
-    })
+    });
 });
 
+//endpoint para enviar email al especialista cuando se le asigna un trabajo
+router.post("/sendMail", (req,res,err) => {
+    let data = req.body;
+    let IdEspecialista = data.IdEspecialista;
+    let FechaInicio = data.FechaInicio;
+    let FechaFin = data.FechaFin;
+    let IdStatus = data.IdStatus;
+    let NombreCliente = data.NombreCliente;
+    let NombrePlanta = data.NombrePlanta;
+    let CiudadPlanta = data.CiudadPlanta;
+    let NombreContacto = data.NombreContacto;
+    let TelefonoContacto = data.TelefonoContacto;
+    let EmailContacto = data.EmailContacto;
+    let Descripcion = data.Descripcion;
+    let CoordenadasSitio = data.CoordenadasSitio;
+    let NombreSitio = data.NombreSitio;
+    let PCFSV = data.PCFSV;
+    let tipoServicio;
 
+    if(PCFSV == 'P'){tipoServicio = 'Preventivo planeado'}
+    else if(PCFSV == 'C'){tipoServicio = 'Correctivo planeado'}
+    else if(PCFSV == 'F'){tipoServicio = 'Pruebas FAT'}
+    else if(PCFSV == 'S'){tipoServicio = 'Puesta en servicio'}
+    else if(PCFSV == 'V'){tipoServicio = 'Soporte ventas'}
+    else{tipoServicio = 'OTRO'}
+    
+    let query1 = "SELECT IdEmpresa FROM Empresa WHERE NombreEmpresa='" + NombreCliente + "';";
+    con.query(query1, (error, result) => {
+        IdEmpresa = result[0]['IdEmpresa'];
+        if(error){
+            res.json("error");
+        }else{
+            let transporter = nodemailer.createTransport({
+                service: "Gmail",
+                secure: false,
+                port: 25,
+                auth:{
+                    user:"asiganacionsiemens@gmail.com",
+                    pass:"Siemens123.abc$",
+                },
+                tlsl:{
+                    rejectUnauthorized:false
+                }
+            });
+            let queryEmail = "SELECT email FROM especialista WHERE IdEspecialista="+IdEspecialista+";";
+            con.query(queryEmail, (error3, result3) => {
+                let emailEspecialista = result3[0]['email'];
+                if(error3){
+                    console.log("ERROR EN EMAIL");
+                }else{
+                    let HelperOptions={
+                        from:"'Asignación Siemens' <asignacionsiemens@gmail.com",
+                        to: emailEspecialista,
+                        subject: "Nueva asignación Field Service Siemens",
+                        text:"Tiene una nueva asignación desde SISTEMA PARA GESTION DE FIELD SERVICE: ",
+                        html: 
+                              "<h2>Asignación</h2>"+
+                              "<p>Usted ha recibido una asignación de trabajo field service, a continuación podrá ver la información al respecto:  </p>"+
+                              '<table style="width:100%; border: 1px solid black;border-collapse: collapse;">'+
+                                    "<tr>"+
+                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Campo</th>"+
+                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Informacion</th>"+
+                                    "</tr>"+
+                                    "<tr>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre del cliente</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreCliente+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre planta</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombrePlanta+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Ciudad planta</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+CiudadPlanta+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Telefono contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+TelefonoContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Email Contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+EmailContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Descripcion</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+Descripcion+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Tipo de servicio</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+tipoServicio+"</td>"+
+                                    "</tr>"+
+                                "</table>"+
+                                "<br>"+
+                                "<p>Puede consultar la asignacion completa en el aplicativo Movil con su cuenta</p>"
+                    }
+                    transporter.sendMail(HelperOptions, function(err,res){
+                        if (err){
+                            console.log(err);
+                            console.log("No se envio**********");
+                        }else{
+                            console.log("Si se envio");
+                        }
+                    });
+                    res.json("true");
+                }
+                
+            });
+        }
+    });
+});
 
 // Borra usuario dado un id y tambien sus asignaciones
 //modificado para borrar por nombre y no por id, workerId = NombreE
