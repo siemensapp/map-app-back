@@ -357,14 +357,49 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     margin-bottom: 10%;
   }
-  #vacunas{ 
+  #Alturas{ 
     height: 28px;
     width: 100%;
     font-size: 14px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     margin-bottom: 10%;
   }
-  #diasFA{
+  #CertificadoA{ 
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  #CertificadoMD{ 
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  #Manejo{ 
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  #Tprofesional{ 
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  #Vacunas{ 
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  #Conte{ 
     height: 28px;
     width: 100%;
     font-size: 14px;
@@ -429,5 +464,13 @@
   }
 
   #resultadoVacunas {
+    display: none;
+  }
+
+  #resultadoConte {
+    display: none;
+  }
+
+  #resultadoTprofesional {
     display: none;
   }

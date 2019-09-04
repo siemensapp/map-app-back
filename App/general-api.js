@@ -7,7 +7,9 @@ const jwt = require('jsonwebtoken');
 const auxImage = require('./auxiliar/imageFunctions');
 const auxCertificadoA = require('./auxiliar/imageFunctions');
 const auxVacunas = require('./auxiliar/imageFunctions');
+const auxTprofesional = require('./auxiliar/imageFunctions');
 const auxCertificadoMD = require('./auxiliar/imageFunctions');
+const auxConte = require('./auxiliar/imageFunctions');
 const verifyToken = require('./auxiliar/verifyToken');
 const auxPush = require('./auxiliar/pushFunction');
 var nodemailer = require ('nodemailer');
@@ -342,6 +344,8 @@ router.post("/createWorker", (req, res, err) => {
     let Celular = data.Celular;
     let IdTecnica = data.IdTecnica;
     let FechaNacimiento = data.FechaNacimiento;
+    let FechaVA;
+    let FechaVM;
     let CeCo = data.CeCo;
     let GID = data.GID;
     let CedulaCiudadania = data.CedulaCiudadania;
@@ -353,8 +357,12 @@ router.post("/createWorker", (req, res, err) => {
     let base64StringA, base64Certificado, certificadoPath;
     //CertificadoMD route
     let base64StringMD, base64CertificadoMD, certificadoPathMD;
-    //CertificadoMD route
+    //Vacunas route
     let base64StringV, base64V, VacunasPath;
+    //Tprofesional route
+    let base64StringT, base64T, TprofesionalPath;
+    //Conte route
+    let base64StringC, base64C, ContePath;
     
 
     var queryDuplicado = "SELECT CedulaCiudadania FROM Especialista WHERE IdEspecialista="+IdEspecialista+";";
@@ -373,27 +381,54 @@ router.post("/createWorker", (req, res, err) => {
                     base64StringV= data.Vacunas;
                     base64V=base64StringV.split(';base64,').pop();
                     VacunasPath = variables.serverDirectoryWin + '\\\\images\\\\Vacunas_' + data.IdEspecialista + ".pdf";
+                }else{
+                    VacunasPath = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                }
+                //Crea el archivo de Conte si el campo Conte tiene un archivo
+                if(data.Vacunas){
+                    base64StringC= data.Conte;
+                    base64C=base64StringC.split(';base64,').pop();
+                    ContePath = variables.serverDirectoryWin + '\\\\images\\\\Conte_' + data.IdEspecialista + ".pdf";
+                }else{
+                    ContePath = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                }
+                //Crea el archivo de Tprofesional si el campo Tprofesional tiene un archivo
+                if(data.Tprofesional){
+                    base64StringT= data.Tprofesional;
+                    base64T=base64StringT.split(';base64,').pop();
+                    TprofesionalPath = variables.serverDirectoryWin + '\\\\images\\\\TarjetaProfesional_' + data.IdEspecialista + ".pdf";
+                }
+                else{
+                    TprofesionalPath = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
                 }
                 //Crea el archivo certificado de alturas si el campo certificado de alturas tiene un archivo
                 if(data.CertificadodeAlturas){
+                    FechaVA=data.FechaVA;
                     base64StringA=data.CertificadodeAlturas;
                     base64Certificado = base64StringA.split(';base64,').pop();
                     certificadoPath = variables.serverDirectoryWin + '\\\\images\\\\certificadoA_' + data.IdEspecialista + ".pdf";
+                }else{
+                    certificadoPath = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                    FechaVA='1000-01-01';
                 }
                 //Crea el archivo certificado de manejo defensivo si el campo certificado de manejo defensivo tiene un archivo
                 if(data.CertificadoMD){
+                    FechaVM = data.fechaVM;
                     base64StringMD= data.CertificadoMD;
                     base64CertificadoMD = base64StringMD.split(';base64,').pop();
                     certificadoPathMD = variables.serverDirectoryWin + '\\\\images\\\\certificadoMD_' + data.IdEspecialista + ".pdf";
+                }else{
+                    certificadoPathMD = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                    fechaVM= '1000-01-01';
                 }
                 if (data.Foto) {
-                    base64String = data.Foto;                    
+                    base64String = data.Foto;                   
                     base64Image = base64String.split(';base64,').pop();               
                     imagePath = variables.serverDirectoryWin + '\\\\images\\\\Foto_' + data.IdEspecialista + ".jpg";
-                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto,certificadoAlturas,certificadomd,vacunas) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + certificadoPath+ "','" + certificadoPathMD+ "','" + VacunasPath+ "')";
+                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto,certificadoAlturas,certificadomd,vacunas,fechaVA,Tprofesional,fechavm,conte) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + certificadoPath+ "','" + certificadoPathMD+ "','" + VacunasPath+ "','" + FechaVA+ "','" + TprofesionalPath+ "','" + fechaVM+ "','" + ContePath+ "')";
                 }else{
                     imagePath = variables.serverDirectoryWin + "\\\\images\\\\default-user.png";
-                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto,certificadoAlturas,certificadomd,vacunas) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + certificadoPath+ "','" + certificadoPathMD+ "','" + VacunasPath+ "')";
+                    query = "INSERT INTO Especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto,certificadoAlturas,certificadomd,vacunas,fechaVA,Tprofesional,fechavm,conte) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + certificadoPath+ "','" + certificadoPathMD+ "','" + VacunasPath+ "','" + FechaVA+ "','" + TprofesionalPath+ "','" + fechaVM+ "','" + ContePath+ "')";
                 }
                 console.log(imagePath);
                 console.log(certificadoPath);
@@ -404,7 +439,7 @@ router.post("/createWorker", (req, res, err) => {
                     console.log("************************************** MUESTRA Certificado RESULT************");
                  res.json(CertificadoAResult);
                 })
-                auxCertificadoA.saveCertificadoA(certificadoPathMD, base64CertificadoMD).then((CertificadoAResultMD) => {
+                auxCertificadoMD.saveCertificadoMD(certificadoPathMD, base64CertificadoMD).then((CertificadoAResultMD) => {
                     console.log("************************************** MUESTRA Certificado MD RESULT************");
                     console.log(data.CertificadoMD);
                     console.log(CertificadoAResultMD);
@@ -418,6 +453,22 @@ router.post("/createWorker", (req, res, err) => {
                     console.log("************************************** MUESTRA Vacunas RESULT************");
                  res.json(VacunasResult);
                 })
+                auxTprofesional.saveTprofesional(TprofesionalPath, base64T).then((TprofesionalResult) => {
+                    console.log("************************************** MUESTRA Tprofesional RESULT************");
+                    console.log(data.Tprofesional);
+                    console.log(TprofesionalResult);
+                    console.log("************************************** MUESTRA Tprofesiona RESULT************");
+                 res.json(TprofesionalResult);
+                })
+                auxConte.saveConte(ContePath, base64C).then((ConteResult) => {
+                    console.log("************************************** MUESTRA Tprofesional RESULT************");
+                    console.log(data.Conte);
+                    console.log(ConteResult);
+                    console.log("************************************** MUESTRA Tprofesiona RESULT************");
+                 res.json(ConteResult);
+                })
+                
+
                 con.query(query, async (error, result, fields) => {
                     if (data.Foto) {
                         console.log(" ENTRA A QUERY ");
@@ -425,7 +476,7 @@ router.post("/createWorker", (req, res, err) => {
                         console.log(" MOSTRO ERROR ")
                         auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
                             console.log("************************************** MUESTRA IMAGE RESULT************");
-                            console.log(data.foto);
+                            console.log(data.Foto);
                             console.log(imageResult);
                             console.log("************************************** MUESTRA IMAGE RESULT************");
                          res.json(imageResult)

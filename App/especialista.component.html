@@ -89,16 +89,10 @@
         </div>
         <div id="headerCertificadoA">
             <div class="styledInput">
-              <input type="date" name="vacunas" id="vacunas" placeholder=" " autocomplete="off">
+              <input type="date" name="Alturas" id="Alturas" placeholder=" " autocomplete="off">
               <label>Vencimiento Certificado Alturas</label>
             </div>
           </div>
-          <div id="headerCertificadoA">
-              <div class="styledInput">
-                <input type="text" id="diasFA" name="diasFA" placeholder="" autocomplete="off"/>
-                <label>Dias para Vencimiento</label>
-              </div>
-            </div>
       </div>
       <div id="QuintaLinea">
           <div id="headerCertificadoMD">
@@ -109,33 +103,27 @@
           </div>
           <div id="headerCertificadoA">
               <div class="styledInput">
-                <input type="date" name="vacunas" id="vacunas" placeholder=" " autocomplete="off">
+                <input type="date" name="Manejo" id="Manejo" placeholder=" " autocomplete="off">
                 <label>Vencimiento Certificado Manejo</label>
               </div>
             </div>
-            <div id="headerCertificadoA">
-                <div class="styledInput">
-                  <input type="text" id="diasFA" name="diasFA" placeholder="" autocomplete="off"/>
-                  <label>Dias para Vencimiento</label>
-                </div>
-              </div>
       </div>
       <div id="SextaLinea">
         <div id="headerProfesional">
           <div class="styledInput">
-            <input class="form-control" type="file" name="Profesional" accept=""/>
+            <input  #documentInput type="file" class="form-control" id="Tprofesional" (change)="processFile4(documentInput)" name="TProfesional" accept=".pdf"/>
             <label>Tarjeta Profecional</label>
           </div>
         </div>
         <div id="headerVacunas">
             <div class="styledInput">
-              <input #documentInput type="file" class="form-control" id="Vacunas" (change)="processFile2(documentInput)" name="Vacunas" accept=".pdf"/>
+              <input #documentInput type="file" class="form-control" id="Vacunas" (change)="processFile3(documentInput)" name="Vacunas" accept=".pdf"/>
               <label>Carné vacunas</label>
             </div>
           </div>
           <div id="headerConte">
             <div class="styledInput">
-              <input  class="form-control" type="file" name="Conte" accept=""/>
+              <input #documentInput type="file" class="form-control" id="Conte" (change)="processFile5(documentInput)" name="Conte" accept=".pdf"/>
               <label>Terjeta Conte</label>
             </div>
           </div>
@@ -150,6 +138,8 @@
  <div id="resultadoCertificadoA"></div>
  <div id="resultadoCertificadoMD"></div>
  <div id="resultadoVacunas"></div>
+ <div id="resultadoTprofesional"></div>
+ <div id="resultadoConte"></div>
 
 
  

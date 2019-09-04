@@ -80,7 +80,34 @@ export class EspecialistaComponent implements OnInit {
        })
        reader.readAsDataURL((<HTMLInputElement>event.target).files[0]);
       }
-  
+
+      processFile4(documentInput: any){
+        //  debugger;
+        console.log("******************estoy adentro 4*****************");
+          var doc : File = documentInput.files[0];
+          var reader = new FileReader();
+      
+          reader.addEventListener('load',function(a:any){
+                 
+            document.getElementById("resultadoTprofesional").innerHTML = a.target.result;
+            
+         })
+         reader.readAsDataURL((<HTMLInputElement>event.target).files[0]);
+        }
+
+        processFile5(documentInput: any){
+          //  debugger;
+          console.log("******************estoy adentro 5*****************");
+            var doc : File = documentInput.files[0];
+            var reader = new FileReader();
+        
+            reader.addEventListener('load',function(a:any){
+                   
+              document.getElementById("resultadoConte").innerHTML = a.target.result;
+              
+           })
+           reader.readAsDataURL((<HTMLInputElement>event.target).files[0]);
+          }
 
   agregarEspecialista(){
 
@@ -94,7 +121,8 @@ export class EspecialistaComponent implements OnInit {
     var datos10 = document.forms["formulario"].elements[9].value;
     var datos11 = document.forms["formulario"].elements[10].value;
     var datos12 = document.forms["formulario"].elements[11].value;
-    //var datos13 = document.forms["formulario"].elements[12].value;
+    var datos13 = document.forms["formulario"].elements[13].value;
+    var datos14 = document.forms["formulario"].elements[15].value;
 
     var datos = {"IdEspecialista" : datos3,
                  "NombreE" : datos4,
@@ -108,8 +136,12 @@ export class EspecialistaComponent implements OnInit {
                  "TarjetaIngresoArgos" : datos12,
                  "CertificadodeAlturas" : document.getElementById("resultadoCertificadoA").innerHTML,
                  "CertificadoMD" : document.getElementById("resultadoCertificadoMD").innerHTML,
-                 "Vacunas" : document.getElementById("resultadoVacunas").innerHTML,                
-                 "Foto" : document.getElementById("resultadoImagen").innerHTML
+                 "Vacunas" : document.getElementById("resultadoVacunas").innerHTML, 
+                 "Tprofesional" : document.getElementById("resultadoTprofesional").innerHTML,
+                 "Conte": document.getElementById("resultadoConte").innerHTML,               
+                 "Foto" : document.getElementById("resultadoImagen").innerHTML,
+                 "FechaVA": datos13,
+                 "FechaVM": datos14
                 };
               
     if(datos3==""){
