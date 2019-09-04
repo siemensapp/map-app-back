@@ -132,7 +132,7 @@ router.post('/loginApp', (req, res, err) => {
                 token: token,
                 expiresIn: 86400,
                 NombreE: result[0]['NombreE'],
-                NombreColaborador: result[0]['NombreE'],
+                NombreColaborador: result[0]['NombreE'],//colaborador = especialista
                 Foto: auxImage.convertBase64(result[0]['Foto'])
                 })
             }
@@ -344,8 +344,8 @@ router.post("/sendMail", (req,res,err) => {
                               "<p>Usted ha recibido una asignación de trabajo field service, a continuación podrá ver la información al respecto:  </p>"+
                               '<table style="width:100%; border: 1px solid black;border-collapse: collapse;">'+
                                     "<tr>"+
-                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Campo</th>"+
-                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Informacion</th>"+
+                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>CAMPO</th>"+
+                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>INFORMACION</th>"+
                                     "</tr>"+
                                     "<tr>"+
                                         "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre del cliente</td>"+
@@ -398,6 +398,314 @@ router.post("/sendMail", (req,res,err) => {
         }
     });
 });
+
+//endpoint para enviar un correo al especialista al editar una asignacion
+router.post("/sendMailEdit/", (req, res, err) => {
+    let data = req.body;
+    let IdEspecialista = data.IdEspecialista;
+    let IdStatus = data.IdStatus;
+    let IdAsignacion = data.IdAsignacion;
+    let PCFSV = data.PCFSV;
+    let IdEmpresa = data.IdEmpresa;
+    let NombrePlanta = data.NombrePlanta;
+    let CiudadPlanta = data.CiudadPlanta;
+    let StatusAsignacion = data.StatusAsignacion;
+    let FechaInicio = data.FechaInicio;
+    let FechaFin = data.FechaFin;
+    let NombreSitio = data.NombreSitio;
+    let NombreContacto = data.NombreContacto;
+    let TelefonoContacto = data.TelefonoContacto;
+    let EmailContacto = data.EmailContacto;
+    let Descripcion = data.Descripcion;
+    let emailEspecialista;
+    let tipoServicio;
+    let NombreEmpresa;
+    let Asignacion;
+
+    if(Descripcion == ""){
+        Descripcion = "Ninguna";
+    }
+
+    switch(StatusAsignacion){
+        case '1':
+            Asignacion = "En Servicio";
+        break;
+        case '2':
+            Asignacion = "Compensatorio";
+        break;
+        case '3':
+            Asignacion = "Vacaciones";
+        break;
+        case '4':
+            Asignacion = "Disponible";
+        break;
+        case '5':
+            Asignacion = "Incapacidad";
+        break;
+        case '6':
+            Asignacion = "Permiso";
+        break;
+        case '7':
+            Asignacion = "Capacitacion";
+        break;
+        case '8':
+            Asignacion = "Disponible fin de semana";
+        break;
+    }
+
+    if(PCFSV == 'P'){tipoServicio = 'Preventivo planeado'}
+    else if(PCFSV == 'C'){tipoServicio = 'Correctivo planeado'}
+    else if(PCFSV == 'F'){tipoServicio = 'Pruebas FAT'}
+    else if(PCFSV == 'S'){tipoServicio = 'Puesta en servicio'}
+    else if(PCFSV == 'V'){tipoServicio = 'Soporte ventas'}
+    else{tipoServicio = 'OTRO'}
+    
+    var queryMailEspecialista = "SELECT email FROM especialista WHERE IdEspecialista="+IdEspecialista+";";
+    var queryNombreEmpresa = "SELECT NombreEmpresa FROM empresa WHERE IdEmpresa="+IdEmpresa+";";
+    con.query(queryMailEspecialista, (error, result) => {
+        if(error){
+            res.json("false");
+        }else{
+            emailEspecialista = result[0]['email'];
+            /* Obtiene el email del especialista, envia el correo*/
+            con.query(queryNombreEmpresa, (error, result) => {
+                if(error){
+                    res.json("false");
+                }else{
+                    NombreEmpresa = result[0]['NombreEmpresa'];
+                    
+                    let transporter = nodemailer.createTransport({
+                        service: "Gmail",
+                        secure: false,
+                        port: 25,
+                        auth:{
+                            user:"asiganacionsiemens@gmail.com",
+                            pass:"Siemens123.abc$",
+                        },
+                        tlsl:{
+                            rejectUnauthorized:false
+                        }
+                    });
+                    let HelperOptions={
+                        from:"'Asignación Modificada Siemens' <asignacionsiemens@gmail.com",
+                        to: emailEspecialista,
+                        subject: "Asignación Modificada Field Service Siemens",
+                        text:"Se ha modificado una asignación en la que usted aparece como especialista seleccionado : ",
+                        html: 
+                            "<h2>Asignación</h2>"+
+                            "<p>Una asignación dada a usted ha sido modificada, a continuación podrá ver la información al respecto:  </p>"+
+                            '<table style="width:100%; border: 1px solid black;border-collapse: collapse;">'+
+                                    "<tr>"+
+                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>CAMPO</th>"+
+                                        "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>INFORMACION</th>"+
+                                    "</tr>"+
+                                    "<tr>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre del cliente</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreEmpresa+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre planta</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombrePlanta+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Ciudad planta</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+CiudadPlanta+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Telefono contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+TelefonoContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Email Contacto</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+EmailContacto+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Descripcion</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+Descripcion+"</td>"+
+                                    "</tr>"+
+                                    "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Tipo de servicio</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+tipoServicio+"</td>"+
+                                    "</tr>"+
+                                        "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Status asignacion</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+Asignacion+"</td>"+
+                                     "</tr>"+
+                                     "</tr>"+
+                                        "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Fecha de Inicio</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+FechaInicio+"</td>"+
+                                     "</tr>"+
+                                     "</tr>"+
+                                        "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Fecha de Finalizacion</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+FechaFin+"</td>"+
+                                     "</tr>"+
+                                     "</tr>"+
+                                        "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre del sitio</td>"+
+                                        "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreSitio+"</td>"+
+                                     "</tr>"+
+                                     
+                                "</table>"+
+                                "<br>"+
+                                "<p>Puede consultar la asignacion completa en el aplicativo Movil con su cuenta</p>"
+                    }
+                        transporter.sendMail(HelperOptions, function(err,res){
+                            if (err){
+                                //console.log(err);
+                                //console.log("No se envio**********");
+                            }else{
+                                //console.log("Si se envio");
+                            }
+                        });
+                    res.json("true");
+                }
+            })
+        }
+    })
+})
+
+//para enviar email al especialista y notificarle de que ha sido borrada su asignacion
+router.post("/sendMailDelete", (req, res, err) => {
+    let data = req.body;
+    let IdEspecialista = data.IdEspecialista;
+    let IdStatus = data.IdStatus;
+    let IdEmpresa = data.IdEmpresa;
+    let PCFSV = data.PCFSV;
+    let IdAsignacion = data.IdAsignacion;
+    let NombreCliente = data.NombreCliente;
+    let NombrePlanta = data.NombrePlanta;
+    let CiudadPlanta = data.CiudadPlanta;
+    let fecha = data.fecha;
+    let Desde = data.desde;
+    let Hasta = data.Hasta;
+    let FechaInicio = data.fechaInicio;
+    let FechaFin = data.FechaFin;
+    let NombreSitio = data.NombreSitio;
+    let NombreContacto = data.NombreContacto;
+    let TelefonoContacto = data.TelefonoContacto;
+    let Descripcion = data.Descripcion;
+    let EmailContacto = data.EmailContacto;
+    let SujetoCancelacion = data.SujetoCancelacion;
+    let RazonCancelacion = data.RazonCancelacion;
+    let tipoServicio;
+    let emailEspecialista;
+
+    if(Descripcion == ""){Descripcion = "Ninguna";}
+
+    if(PCFSV == 'P'){tipoServicio = 'Preventivo planeado'}
+    else if(PCFSV == 'C'){tipoServicio = 'Correctivo planeado'}
+    else if(PCFSV == 'F'){tipoServicio = 'Pruebas FAT'}
+    else if(PCFSV == 'S'){tipoServicio = 'Puesta en servicio'}
+    else if(PCFSV == 'V'){tipoServicio = 'Soporte ventas'}
+    else{tipoServicio = 'OTRO'}
+
+    
+    var queryMailEspecialista = "SELECT email FROM especialista WHERE IdEspecialista="+IdEspecialista+";";
+    
+    con.query(queryMailEspecialista, (error, result) => {
+        if(error){
+            res.json("false");
+        }else{
+            res.json("true");
+            emailEspecialista = result[0]['email'];
+            let transporter = nodemailer.createTransport({
+                service: "Gmail",
+                secure: false,
+                port: 25,
+                auth:{
+                    user:"asiganacionsiemens@gmail.com",
+                    pass:"Siemens123.abc$",
+                },
+                tlsl:{
+                    rejectUnauthorized:false
+                }
+            });
+            let HelperOptions={
+                from:"'Eliminada Asignación Siemens' <asignacionsiemens@gmail.com",
+                to: emailEspecialista,
+                subject: "Asignación Eliminada Field Service Siemens",
+                text:"Se ha eliminado/cancelado una asignación en la que usted aparece como especialista seleccionado : ",
+                html: 
+                    "<h2>Asignación</h2>"+
+                    "<p>Una asignación dada a usted ha sido eliminada, a continuación podrá ver la información al respecto:  </p>"+
+                    '<table style="width:100%; border: 1px solid black;border-collapse: collapse;">'+
+                            "<tr>"+
+                                "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>CAMPO</th>"+
+                                "<th style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>INFORMACION</th>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre Cliente</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreCliente+"</td>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre planta</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombrePlanta+"</td>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Ciudad planta</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+CiudadPlanta+"</td>"+
+                            "</tr>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre Sitio</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreSitio+"</td>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Nombre contacto</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+NombreContacto+"</td>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Telefono contacto</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+TelefonoContacto+"</td>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Email Contacto</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+EmailContacto+"</td>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Descripcion</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+Descripcion+"</td>"+
+                            "</tr>"+
+                            "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Tipo de servicio</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+tipoServicio+"</td>"+
+                            "</tr>"+
+                                "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Sujeto de cancelacion asignacion</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+SujetoCancelacion+"</td>"+
+                             "</tr>"+
+                             "</tr>"+
+                                "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Razon de cancelacion asignacion</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+RazonCancelacion+"</td>"+
+                             "</tr>"+
+                             "</tr>"+
+                                "<tr style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>Fecha cancelacion asignacion</td>"+
+                                "<td style='border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: left;'>"+fecha+"</td>"+
+                             "</tr>"+
+                             
+                        "</table>"+
+                        "<br>"+
+                        "<p>Puede consultar la asignacion completa en el aplicativo Movil con su cuenta</p>"
+            }
+                transporter.sendMail(HelperOptions, function(err,res){
+                    if (err){
+                        //console.log(err);
+                        //console.log("No se envio**********");
+                    }else{
+                        //console.log("Si se envio");
+                    }
+                });
+        }
+    })
+})
 
 // Borra usuario dado un id y tambien sus asignaciones
 //modificado para borrar por nombre y no por id, workerId = NombreE
@@ -666,6 +974,8 @@ router.post("/deleteAssignment/", (req, res, err) => {
     //Diferencia entre Desde y FechaInicio
     let diffDate1 = Math.abs(desde.getTime() - fechaInicio.getTime());
     let diffDays1 = Math.ceil(diffDate1 / (1000 * 60 * 60 * 24));
+    console.log("SUJETO", body.SujetoCancelacion);
+    console.log("RAZON", body.RazonCancelacion);
 
     //Diferencia entre Hasta y FechaFin
     let diffDate2 = Math.abs(fechaFin.getTime() - hasta.getTime());
@@ -736,12 +1046,17 @@ router.post("/deleteAssignment/", (req, res, err) => {
     else if (diffDays1 == 0 && diffDays2 == 0) {
         query = "DELETE FROM Asignacion WHERE IdAsignacion=" + body.IdAsignacion + "";
         con.query(query, (error, result, fields) => {
-            if (error) //console.log('Error eliminacion 1ra parte:', error);
+            if (error){
+                console.log("ERROR EN PRIMER QUERY DELETE");
+            } //console.log('Error eliminacion 1ra parte:', error);
             query2 = "INSERT INTO AsignacionEliminada (PCFSV, IdEspecialista, IdStatus, IdAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES('" + body.PCFSV + "', " + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.IdEmpresa + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
             //console.log(query2);
             con.query(query2, (error, result, fields) => {
-                if (error) error;;
-                return res.json((error) ? "false" : "true")
+                if (error){
+                    res.json("false");
+                }else{
+                    res.json("true");
+                }
             })
         })
     }
@@ -862,6 +1177,13 @@ router.post("/updateCoords", (req, res) => {
         })
     }
 })
+
+//para traer los reportes hechos por cada especialista para ver en app movil
+router.get("/getReportes/:user", (req, res) => {
+    let cedula = req.params.user;
+    let query = "SELECT ";
+})
+
 
 router.post("/saveGeneralReport", (req, res) => {
     var data = req.body;
