@@ -1,0 +1,155 @@
+<div id="animacion">
+  <div id="titulo">
+    <p>AGREGAR NUEVO ESPECIALISTA</p>
+    <br>
+  </div>
+  <form id="formulario">
+    <div id="subirVerFoto">
+      <div id="campoFoto"><img id="campoImagen" /></div>
+      <input type="file" id="fileInput" name="fileInput" />
+      <input type="button" id="subirFoto" value="Subir Imagen" (click)="subirArchivo();" />
+    </div>
+    <div id="IdNombreTecnica">
+      <div class="headers">
+        <div class="styledInput">
+          <input type="number" class="campos" placeholder=" " />
+          <label>Id Especialista</label>
+        </div>
+      </div>
+      <div class="headers">
+        <div class="styledInput">
+          <input type="text" class="campos" placeholder=" " />
+          <label>Nombre</label>
+        </div>
+      </div>
+      <div class="headers">
+        <div class="styledInput">
+          <input type="tel" class="campos" maxlength="10" placeholder=" " />
+          <label>Celular</label>
+        </div>
+      </div>
+      <div class="headers">Tecnica</div>
+      <select id="comboTecnica">
+        <option value=1>Variadores de Frecuencia</option>
+        <option value=2>Baja Tensión</option>
+        <option value=3>Automatización</option>
+        <option value=4>AOS</option>
+        <option value=5>Motores</option>
+      </select>
+    </div>
+    <div id="demasDatos">
+      <div id="primeraLinea">
+        <div id="headerFecha">
+          <div class="styledInput">
+            <input type="date" name="fechaNacimiento" id="fechaN" placeholder="Fecha Nacimiento" max="{{fechaMinima}}">
+          </div>
+        </div>
+        <div id=headerCeCo>
+          <div class="styledInput">
+            <input type="text" id="CeCo" placeholder=" " autocomplete="off" />
+            <label>CeCo</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="segundaLinea">
+        <div id=headerGID>
+          <div class="styledInput">
+            <input type="text" id="GID" placeholder=" " autocomplete="off" />
+            <label>GID</label>
+          </div>
+        </div>
+        <div id="headerCedula">
+          <div class="styledInput">
+            <input type="number" name="cedula" id="cedulaC" placeholder=" " autocomplete="off">
+            <label>Cedula Cuidadania</label>
+          </div>
+        </div>
+      </div>
+      <div id="terceraLinea">
+        <div id="headerLugarE">
+          <div class="styledInput">
+            <input type="text" name="lugar" id="lugarE" placeholder=" " autocomplete="off">
+            <label>Lugar Expedicion C.C.</label>
+          </div>
+        </div>
+        <div id="headerTarjetaIA">
+          <div class="styledInput">
+            <input type="text" name="tarjetaIA" id="tarjetaIA" placeholder=" " autocomplete="off">
+            <label>Tarjeta Ingreso Argos</label>
+          </div>
+        </div>
+      </div>
+      <div id="CuartaLinea">
+        <div id="headerCertificadoA">
+          <div class="styledInput">
+            <input #documentInput type="file" class="form-control" id="CertificadoA" (change)="processFile1(documentInput)" name="CertificadoA" accept=".pdf"/>
+            <label>Certificado de Alturas</label>
+          </div>
+        </div>
+        <div id="headerCertificadoA">
+            <div class="styledInput">
+              <input type="date" name="vacunas" id="vacunas" placeholder=" " autocomplete="off">
+              <label>Vencimiento Certificado Alturas</label>
+            </div>
+          </div>
+          <div id="headerCertificadoA">
+              <div class="styledInput">
+                <input type="text" id="diasFA" name="diasFA" placeholder="" autocomplete="off"/>
+                <label>Dias para Vencimiento</label>
+              </div>
+            </div>
+      </div>
+      <div id="QuintaLinea">
+          <div id="headerCertificadoMD">
+              <div class="styledInput">
+                <input #documentInput type="file" class="form-control" id="CertificadoMD" (change)="processFile2(documentInput)" name="CertificadoMD" accept=".pdf"/>
+                <label>Certificado Manejo Defensivo</label>
+              </div>
+          </div>
+          <div id="headerCertificadoA">
+              <div class="styledInput">
+                <input type="date" name="vacunas" id="vacunas" placeholder=" " autocomplete="off">
+                <label>Vencimiento Certificado Manejo</label>
+              </div>
+            </div>
+            <div id="headerCertificadoA">
+                <div class="styledInput">
+                  <input type="text" id="diasFA" name="diasFA" placeholder="" autocomplete="off"/>
+                  <label>Dias para Vencimiento</label>
+                </div>
+              </div>
+      </div>
+      <div id="SextaLinea">
+        <div id="headerProfesional">
+          <div class="styledInput">
+            <input class="form-control" type="file" name="Profesional" accept=""/>
+            <label>Tarjeta Profecional</label>
+          </div>
+        </div>
+        <div id="headerVacunas">
+            <div class="styledInput">
+              <input #documentInput type="file" class="form-control" id="Vacunas" (change)="processFile2(documentInput)" name="Vacunas" accept=".pdf"/>
+              <label>Carné vacunas</label>
+            </div>
+          </div>
+          <div id="headerConte">
+            <div class="styledInput">
+              <input  class="form-control" type="file" name="Conte" accept=""/>
+              <label>Terjeta Conte</label>
+            </div>
+          </div>
+      </div>
+    </div>
+  </form>
+<div id="botones">
+    <button (click)="agregarEspecialista(); agregarEspecialistaAppMovil();" id="enviar">Crear Especialista</button><br>
+    <button routerLink='/main/field-service' id="cancelar">Cancelar</button><br>
+  </div>
+ <div id="resultadoImagen"></div>
+ <div id="resultadoCertificadoA"></div>
+ <div id="resultadoCertificadoMD"></div>
+ <div id="resultadoVacunas"></div>
+
+
+ 

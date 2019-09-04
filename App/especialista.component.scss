@@ -1,0 +1,433 @@
+#animacion {
+    animation-name: deslizar;
+    animation-duration: 0.4s;
+  }
+  
+  @keyframes deslizar {
+    from {
+      width: 30%
+    }
+  
+    to {
+      width: 100%
+    }
+  }
+  
+  .styledInput {
+    position: relative;
+    width: 95%;
+    
+  }
+
+  .styledInputD {
+    position: relative;
+    width: 105%;
+    
+  }
+  
+  /* input */
+  .styledInput input {
+    /* border-bottom: 1px solid #757575; */
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    font-size: 1.2rem;
+  }
+  
+  .styledInput input:focus {
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom: 2px solid #0077FF;
+  }
+  
+  .styledInput input~label {
+    position: absolute;
+    left: 2%;
+    top: 6px;
+    /* z-index: -1; */
+    transition: 0.2s;
+    color: #757575;
+  }
+  
+  .styledInput input:focus~label {
+    color: #0077FF;
+    transform: translateY(-30px);
+    font-size: 0.9rem;
+  }
+  
+  .styledInput input:not(:placeholder-shown)~label {
+    transform: translateY(-30px);
+    font-size: 0.9rem;
+    
+  }
+  
+  .styledInput textarea {
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: inherit;
+    border: 1px solid #757575;
+  }
+  
+  .styledInput textarea:focus {
+    border: 2px solid #0077FF;
+  }
+  
+  .styledInput textarea~label {
+    position: absolute;
+    left: 5px;
+    top: 30px;
+    z-index: -1;
+    transition: 0.2s;
+    color: #757575;
+  }
+  
+  .styledInput textarea:focus~label {
+    color: #0077FF;
+    transform: translateY(-15px);
+    font-size: 1rem;
+  }
+  
+  .styledInput textarea:not(:placeholder-shown)~label {
+    transform: translateY(-30px);
+    font-size: 1rem;
+  }
+  
+  #titulo {
+    font-size: 22px;
+    font-weight: 600;
+    align-content: center;
+    margin-left: 23%;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  
+  #subirVerFoto {
+    width: 30%;
+    height: 220px;
+    margin-left: 5%;
+    float: left;
+  }
+  
+  #campoFoto {
+    height: 220px;
+    width: 100%;
+    border: ridge 1.1px #0F1923;
+  }
+  
+  #campoImagen {
+    width: 100%;
+    height: auto;
+  }
+  
+  #fileInput {
+    height: 0px;
+    visibility: hidden;
+    overflow: hidden;
+    color: white;
+    background-color: white;
+    border: ridge 0px white;
+    width: 0%;
+  }
+  
+  #subirFoto {
+    margin-top: 3%;
+    overflow: hidden;
+    width: 100%;
+    height: 30px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    color: black;
+    background-color: white;
+    border: ridge 1.1px #0F1923;
+    cursor: pointer;
+  }
+  
+  #subirFoto:hover {
+    color: white;
+    background-color: #0F1923;
+    border: ridge 1.1px #0F1923;
+  }
+  
+  #IdNombreTecnica {
+    margin-left: 40%;
+  }
+  
+  .headers {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    margin-bottom: 4%;
+  }
+   
+  .campos {
+    height: 30px;
+    width: 85%;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 4%;
+  }
+  
+  #comboTecnica {
+    height: 35px;
+    width: 81%;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    align-content: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+  
+  #demasDatos {
+    margin-left: 5%;
+    margin-top: 7%;
+    height: 190px;
+    width: 85%;
+  }
+  
+  #primeraLinea {
+    display: flex;
+  }
+  
+  #headerFecha {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 125%;
+    float: left;
+  }
+  
+  #fechaN {
+    height: 30px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  
+  #fechaN:before {
+    content: attr(placeholder) !important;
+    color: #aaa;
+    margin-right: 0.5em;
+  }
+  
+  #fechaN:focus:before,
+  #fechaN:valid:before {
+    content: "";
+  }
+  
+  
+  #headerCeCo {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+  }
+  
+  #CeCo {
+    height: 29px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  
+  #segundaLinea {
+    display: flex;
+    margin-top: 8%;
+  }
+  
+  #headerGID {
+    margin-left: 0%;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 80%;
+    float: right;
+  }
+  
+  #GID {
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  
+  #headerCedula {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 70%;
+    float: left;
+  }
+  
+  #cedulaC {
+    height: 30px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  
+  #terceraLinea {
+    display: flex;
+    margin-top: 8%;
+  }
+  #CuartaLinea {
+    display: flex;
+    margin-top: 8%;
+  }
+  #QuintaLinea {
+    display: flex;
+    margin-top: 8%;
+  }
+  #SextaLinea {
+    display: flex;
+    margin-top: 8%;
+  }
+
+
+  #headerLugarE {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+  }
+
+  #headerCertificadoA {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+  }
+
+  #headerCertificadoMD {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+  }
+
+  #headerVacunas {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+  }
+
+  #headerConte {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+  }
+  #headerProfesional {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+  }
+
+  #headerBlanco {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+  }
+  
+  #lugarE {
+    height: 29px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  
+  #headerTarjetaIA {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    height: 20px;
+    width: 100%;
+    float: right;
+  }
+  
+  #tarjetaIA {
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  #vacunas{ 
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  #diasFA{
+    height: 28px;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin-bottom: 10%;
+  }
+  #botones {
+    display: flex;
+    margin-right: 10%;
+    margin-left: 5%;
+   
+  }
+  
+  #enviar {
+    margin-top: 40%;
+    margin-left: 5%;
+    width: 50%;
+    height: 40px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    color: black;
+    background-color: white;
+    border: ridge 1.4px #0F1923;
+    cursor: pointer;
+  }
+  
+  #enviar:hover {
+    color: white;
+    background-color: #0F1923;
+    border: ridge 1.1px #0F1923;
+  }
+  
+  #cancelar {
+    margin-top: 40%;
+    margin-left: 5%;
+    width: 50%;
+    height: 40px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 14px;
+    color: black;
+    background-color: white;
+    border: ridge 1.4px #0F1923;
+    cursor: pointer;
+  }
+  
+  #cancelar:hover {
+    color: white;
+    background-color: #0F1923;
+    border: ridge 1.1px #0F1923;
+  }
+  
+  #resultadoImagen {
+    display: none;
+  }
+
+  #resultadoCertificadoA {
+    display: none;
+  }
+
+  #resultadoCertificadoMD {
+    display: none;
+  }
+
+  #resultadoVacunas {
+    display: none;
+  }
