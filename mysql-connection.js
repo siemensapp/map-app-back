@@ -5,11 +5,12 @@ const startingMysql = () => {
         host: 'localhost',
         database: 'fieldservice',
         user: 'root',
-        password: 'admin',
+        password: 'admin@SiemensDB123',
         insecureAuth: true
     });
     
     con.connect( (err) => {
+        console.log("ENTRANDO A MYSQL");
         if (err){
             console.log("Not connected to Mysql, Retrying ...");
             //console.log(err);
