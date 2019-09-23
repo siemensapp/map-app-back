@@ -298,6 +298,8 @@ router.post("/setAssignment", (req, res, err) => {
         else if(PCFSV == 'F'){tipoServicio = 'Pruebas FAT'}
         else if(PCFSV == 'S'){tipoServicio = 'Puesta en servicio'}
         else if(PCFSV == 'V'){tipoServicio = 'Soporte ventas'}
+        else if(PCFSV == 'E'){tipoServicio = 'Emergencia'}
+        else if(PCFSV == 'CN'){tipoServicio = 'Correctivo No Planeado'}
         else{tipoServicio = 'OTRO'}
 
         let query1 = "SELECT IdEmpresa FROM empresa WHERE NombreEmpresa='" + NombreCliente + "';";
@@ -308,7 +310,7 @@ router.post("/setAssignment", (req, res, err) => {
             }else{
                 //console.log("SEGUNDO QUERY ASSIGNMENT");
                 IdEmpresa = result[0]['IdEmpresa'];
-                let insertQuery = "INSERT INTO asignacion (PCFSV, IdEspecialista, IdStatus, StatusAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES('" + PCFSV + "', " + IdEspecialista + "," + IdStatus + ", 0, " + IdEmpresa + ", '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
+                let insertQuery = "INSERT INTO asignacion (PCFSV, IdEspecialista, IdStatus, StatusAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES('" + tipoServicio + "', " + IdEspecialista + "," + IdStatus + ", 0, " + IdEmpresa + ", '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
                 con.query(insertQuery, (error, result) => {
                     //console.log("TERCER QUERY ASSIGNMENT");
                     //console.log(error);
