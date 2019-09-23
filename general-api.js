@@ -1105,11 +1105,16 @@ router.get('/getWorkerAssignments/:worker', (req, res, err) => {
 router.get('/getInfoAssignment/:id/:date', (req, res, err) => {
     let id = req.params.id;
     let date = req.params.date;
-    let query = " SELECT especialista.NombreE, tecnica.NombreT, status.NombreS, asignacion.IdEspecialista, asignacion.PCFSV, asignacion.IdStatus, asignacion.IdAsignacion, empresa.NombreEmpresa, empresa.IdEmpresa, asignacion.NombrePlanta, asignacion.CiudadPlanta, asignacion.StatusAsignacion, asignacion.FechaInicio, asignacion.FechaFin, asignacion.NombreSitio, asignacion.NombreContacto, asignacion.TelefonoContacto, asignacion.EmailContacto, asignacion.Descripcion, asignacion.CoordenadasSitio, asignacion.CoordenadasEspecialista FROM especialista INNER JOIN tecnica ON especialista.IdTecnica=tecnica.IdTecnica INNER JOIN asignacion ON especialista.IdEspecialista=asignacion.IdEspecialista INNER JOIN status ON asignacion.IdStatus=status.IdStatus INNER JOIN empresa ON asignacion.IdEmpresa=empresa.IdEmpresa WHERE asignacion.IdEspecialista=" + id + " AND '" + date + "' BETWEEN Asignacion.FechaInicio AND Asignacion.FechaFin;";
+    let query = " SELECT especialista.NombreE, tecnica.NombreT, status.NombreS, asignacion.IdEspecialista, asignacion.PCFSV, asignacion.IdStatus, asignacion.IdAsignacion, empresa.NombreEmpresa, empresa.IdEmpresa, asignacion.NombrePlanta, asignacion.CiudadPlanta, asignacion.StatusAsignacion, asignacion.FechaInicio, asignacion.FechaFin, asignacion.NombreSitio, asignacion.NombreContacto, asignacion.TelefonoContacto, asignacion.EmailContacto, asignacion.Descripcion, asignacion.CoordenadasSitio, asignacion.CoordenadasEspecialista FROM especialista INNER JOIN tecnica ON especialista.IdTecnica=tecnica.IdTecnica INNER JOIN asignacion ON especialista.IdEspecialista=asignacion.IdEspecialista INNER JOIN status ON asignacion.IdStatus=status.IdStatus INNER JOIN empresa ON asignacion.IdEmpresa=empresa.IdEmpresa WHERE asignacion.IdEspecialista=" + id + " AND '" + date + "' BETWEEN asignacion.FechaInicio AND asignacion.FechaFin;";
     // let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='10236';";
     con.query(query, (error, result) => {
-        if (error) return res.json("Hubo un error");
-        res.json(result);
+        if (error){
+            console.log("ERROR GET INFO ASSIG: ", error);
+            return res.json("Hubo un error");
+        }else{
+            res.json(result);
+        }
+       
     })
 })
 
@@ -1251,7 +1256,7 @@ router.post("/updateAssignment/", (req, res, err) =>{
 // Trae las asignaciones del mes
 router.get("/getMonthAssignments/:date", (req, res, err) => {
     let date = req.params.date;
-    let query = "SELECT asignacion.IdEspecialista, asignacion.IdStatus, asignacion.FechaInicio, asignacion.FechaFin, especialista.IdTecnica as tecnica, especialista.NombreE, (SELECT COUNT(*) FROM especialista WHERE IdTecnica=tecnica) as Cuenta FROM asignacion INNER JOIN especialista ON asignacion.IdEspecialista=Especialista.IdEspecialista WHERE YEAR(asignacion.FechaInicio) = YEAR('" + date + "') AND MONTH(asignacion.FechaInicio)=MONTH('" + date + "') OR YEAR(asignacion.FechaFin) = YEAR('" + date + "') AND MONTH(asignacion.FechaFin) = MONTH('" + date + "');";
+    let query = "SELECT asignacion.IdEspecialista, asignacion.IdStatus, asignacion.FechaInicio, asignacion.FechaFin, especialista.IdTecnica as tecnica, especialista.NombreE, (SELECT COUNT(*) FROM especialista WHERE IdTecnica=tecnica) as Cuenta FROM asignacion INNER JOIN especialista ON asignacion.IdEspecialista=especialista.IdEspecialista WHERE YEAR(asignacion.FechaInicio) = YEAR('" + date + "') AND MONTH(asignacion.FechaInicio)=MONTH('" + date + "') OR YEAR(asignacion.FechaFin) = YEAR('" + date + "') AND MONTH(asignacion.FechaFin) = MONTH('" + date + "');";
     con.query(query, (error, result) => {
         if (error) return res.json("Error");
         return res.json(result);
@@ -1524,6 +1529,7 @@ router.post("/updateEquipment/:serial", (req, res) => {
 
 router.get("/getReportByAssignment/:id", (req, res) => {
     let IdAsignacion = req.params.id;
+    console.log("ASIGNACION: ",IdAsignacion);
     let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio FROM reportegeneral AS RG INNER JOIN empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN asignacion ON RG.IdAsignacion=asignacion.IdAsignacion INNER JOIN especialista ON asignacion.IdEspecialista=especialista.IdEspecialista INNER JOIN tecnica AS T ON especialista.IdTecnica=T.IdTecnica WHERE RG.IdAsignacion=" + IdAsignacion + ";";
 
     con.query(query, (error, result) => {
