@@ -231,6 +231,17 @@ router.get("/clientList", (req, res, err) => {
     })
 });
 
+router.get("/especialistaList/:id", (req, res, err) => {
+    let query = "SELECT NombreE FROM especialista WHERE IdEspecialista="+req.params.id;
+    con.query(query, (error, result) => {
+        if(error){
+            return res.json("false");
+        }else{
+            return res.json(result);
+        }
+    })
+});
+
 
 //añade un nuevo cliente
 router.post("/addCliente", (req, res, err) => {
