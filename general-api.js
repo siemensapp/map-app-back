@@ -879,35 +879,35 @@ router.post("/createWorker", (req, res, err) => {
                 if(data.Vacunas){
                     base64StringV= data.Vacunas;
                     base64V=base64StringV.split(';base64,').pop();
-                    VacunasPath = variables.serverDirectoryWin + '\\\\images\\\\Vacunas_' + data.IdEspecialista + ".pdf";
+                    VacunasPath = variables.serverDirectoryWin + 'images/Vacunas_' + data.IdEspecialista + ".pdf";
                 }else{
-                    VacunasPath = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                    VacunasPath = variables.serverDirectoryWin + "images/Vacio.pdf";
                 }
                 //Crea el archivo de Conte si el campo Conte tiene un archivo
                 if(data.Vacunas){
                     base64StringC= data.Conte;
                     base64C=base64StringC.split(';base64,').pop();
-                    ContePath = variables.serverDirectoryWin + '\\\\images\\\\Conte_' + data.IdEspecialista + ".pdf";
+                    ContePath = variables.serverDirectoryWin + 'images/Conte_' + data.IdEspecialista + ".pdf";
                 }else{
-                    ContePath = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                    ContePath = variables.serverDirectoryWin + "images/Vacio.pdf";
                 }
                 //Crea el archivo de Tprofesional si el campo Tprofesional tiene un archivo
                 if(data.Tprofesional){
                     base64StringT= data.Tprofesional;
                     base64T=base64StringT.split(';base64,').pop();
-                    TprofesionalPath = variables.serverDirectoryWin + '\\\\images\\\\TarjetaProfesional_' + data.IdEspecialista + ".pdf";
+                    TprofesionalPath = variables.serverDirectoryWin + 'images/TarjetaProfesional_' + data.IdEspecialista + ".pdf";
                 }
                 else{
-                    TprofesionalPath = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                    TprofesionalPath = variables.serverDirectoryWin + "images/Vacio.pdf";
                 }
                 //Crea el archivo certificado de alturas si el campo certificado de alturas tiene un archivo
                 if(data.CertificadodeAlturas){
                     FechaVA=data.FechaVA;
                     base64StringA=data.CertificadodeAlturas;
                     base64Certificado = base64StringA.split(';base64,').pop();
-                    certificadoPath = variables.serverDirectoryWin + '\\\\images\\\\certificadoA_' + data.IdEspecialista + ".pdf";
+                    certificadoPath = variables.serverDirectoryWin + 'images/certificadoA_' + data.IdEspecialista + ".pdf";
                 }else{
-                    certificadoPath = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                    certificadoPath = variables.serverDirectoryWin + "images/Vacio.pdf";
                     FechaVA='1000-01-01';
                 }
                 //Crea el archivo certificado de manejo defensivo si el campo certificado de manejo defensivo tiene un archivo
@@ -915,22 +915,22 @@ router.post("/createWorker", (req, res, err) => {
                     fechaVM = data.FechaVM;
                     base64StringMD= data.CertificadoMD;
                     base64CertificadoMD = base64StringMD.split(';base64,').pop();
-                    certificadoPathMD = variables.serverDirectoryWin + '\\\\images\\\\certificadoMD_' + data.IdEspecialista + ".pdf";
+                    certificadoPathMD = variables.serverDirectoryWin + 'images/certificadoMD_' + data.IdEspecialista + ".pdf";
                 }else{
-                    certificadoPathMD = variables.serverDirectoryWin + "\\\\images\\\\Vacio.pdf";
+                    certificadoPathMD = variables.serverDirectoryWin + "images/Vacio.pdf";
                     fechaVM= '1000-01-01';
                 }
                 if (data.Foto) {
                     base64String = data.Foto;                   
                     base64Image = base64String.split(';base64,').pop();               
-                    imagePath = variables.serverDirectoryWin + '\\\\images\\\\Foto_' + data.IdEspecialista + ".jpg";
-                    query = "INSERT INTO especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto,certificadoAlturas,certificadomd,vacunas,fechaVA,Tprofesional,fechavm,conte, email) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + certificadoPath+ "','" + certificadoPathMD+ "','" + VacunasPath+ "','" + FechaVA+ "','" + TprofesionalPath+ "','" + fechaVM+ "','" + ContePath+ ","+email+';';
+                    imagePath = variables.serverDirectoryWin + 'images/Foto_' + data.IdEspecialista + ".jpg";
+                    query = "INSERT INTO especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto,certificadoAlturas,certificadomd,vacunas,fechaVA,Tprofesional,fechavm,conte, email) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + certificadoPath+ "','" + certificadoPathMD+ "','" + VacunasPath+ "','" + FechaVA+ "','" + TprofesionalPath+ "','" + fechaVM+ "','" + ContePath+ "','"+email+"');";
                 }else{
-                    imagePath = variables.serverDirectoryWin + "\\\\images\\\\default-user.png";
-                    query = "INSERT INTO especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto,certificadoAlturas,certificadomd,vacunas,fechaVA,Tprofesional,fechavm,conte, email) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + certificadoPath+ "','" + certificadoPathMD+ "','" + VacunasPath+ "','" + FechaVA+ "','" + TprofesionalPath+ "','" + fechaVM+ "','" + ContePath+ ","+email+';';
+                    imagePath = variables.serverDirectoryWin + "images/default-user.png";
+                    query = "INSERT INTO especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, Foto,certificadoAlturas,certificadomd,vacunas,fechaVA,Tprofesional,fechavm,conte, email) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica + ",'" + imagePath+ "','" + certificadoPath+ "','" + certificadoPathMD+ "','" + VacunasPath+ "','" + FechaVA+ "','" + TprofesionalPath+ "','" + fechaVM+ "','" + ContePath+ "','"+email+"');";
                 }
-                console.log(imagePath);
-                console.log(certificadoPath);
+                //console.log(imagePath);
+                //console.log(certificadoPath);
                 auxCertificadoA.saveCertificadoA(certificadoPath, base64Certificado).then((CertificadoAResult) => {
                     //console.log("************************************** MUESTRA Certificado RESULT************");
                     //console.log(data.CertificadodeAlturas);
@@ -974,11 +974,7 @@ router.post("/createWorker", (req, res, err) => {
                         console.log(error);
                         console.log(" MOSTRO ERROR ")
                         auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
-                            console.log("************************************** MUESTRA IMAGE RESULT************");
-                            console.log(data.Foto);
-                            console.log(imageResult);
-                            console.log("************************************** MUESTRA IMAGE RESULT************");
-                         res.json(imageResult)
+                            res.json(imageResult)
                         })
                        
                     } else  res.json((error)? "false" : "true");
@@ -1063,7 +1059,7 @@ router.post("/editWorker", (req, res, err) => {
         if (data.Foto) {
             base64String = data.Foto;
             base64Image = base64String.split(';base64,').pop();
-            imagePath = variables.serverDirectoryWin + 'images\\\\Foto_' + data.IdEspecialista + ".jpg";
+            imagePath = variables.serverDirectoryWin + 'images/Foto_' + data.IdEspecialista + ".jpg";
             query3 = "UPDATE especialista SET NombreE='" + NombreE + "',Celular='" + Celular + "',IdTecnica=" + IdTecnica + ",FechaNacimiento='" + FechaNacimiento + "',CeCo='" + CeCo + "',GID='" + GID + "',CedulaCiudadania='" + CedulaCiudadania + "',LugarExpedicion='" + LugarExpedicion + "',TarjetaIngresoArgos='" + TarjetaIngresoArgos + "',Foto='" + imagePath + "',email='" + email +"' WHERE IdEspecialista=" + IdEspecialista;
         }
         ////console.log(imagePath);
