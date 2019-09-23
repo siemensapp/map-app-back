@@ -88,41 +88,41 @@ function saveConte (ContePath, base64C){
 
 // Funcion que transforma una imagen existente en una cadena de base64
 function convertBase64 (singleWorker) {
-    let pathFoto = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images\default-user.png")
+    let pathFoto = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images/default-user.png")
     let bitmap = fs.readFileSync(path.normalize(pathFoto));
     return new Buffer(bitmap).toString('base64');
 }
 
 // Funcion que transforma un documento A existente en una cadena de base64
 function convertCABase64 (singleWorker) {
-    let pathCertificadoA = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images\default-user.png")
+    let pathCertificadoA = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images/default-user.png")
     let bitmap = fs.readFileSync(path.normalize(pathCertificadoA));
     return new Buffer(bitmap).toString('base64');
 }
 
 // Funcion que transforma un documento MD existente en una cadena de base64
 function convertCAMDBase64 (singleWorker) {
-    let pathCertificadoMD = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images\default-user.png")
+    let pathCertificadoMD = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images/default-user.png")
     let bitmap = fs.readFileSync(path.normalize(pathCertificadoMD));
     return new Buffer(bitmap).toString('base64');
 }
 
 // Funcion que transforma un documento Tprofesioanal existente en una cadena de base64
 function convertTprofesionalBase64 (singleWorker) {
-    let pathTprofesional = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images\default-user.png")
+    let pathTprofesional = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images/default-user.png")
     let bitmap = fs.readFileSync(path.normalize(pathTprofesional));
     return new Buffer(bitmap).toString('base64');
 }
 
 // Funcion que transforma un documento Vacunas existente en una cadena de base64
 function convertVacunasBase64 (singleWorker) {
-    let pathVacunas = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images\default-user.png")
+    let pathVacunas = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images/default-user.png")
     let bitmap = fs.readFileSync(path.normalize(pathVacunas));
     return new Buffer(bitmap).toString('base64');
 }
 // Funcion que transforma un documento Conte existente en una cadena de base64
 function convertConteBase64 (singleWorker) {
-    let pathConte = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images\default-user.png")
+    let pathConte = (singleWorker.Foto) ? singleWorker.Foto : String(variables.serverDirectoryWin + "images/default-user.png")
     let bitmap = fs.readFileSync(path.normalize(pathConte));
     return new Buffer(bitmap).toString('base64');
 }
