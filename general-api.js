@@ -197,9 +197,14 @@ router.get("/allWorkers", (req, res, err) => {
     //console.log("Connected to get")
     var workersQuery;
     con.query("select especialista.NombreE, especialista.IdEspecialista, especialista.IdTecnica, tecnica.NombreT, tecnica.IdTecnica from especialista inner join tecnica on especialista.IdTecnica = tecnica.IdTecnica ORDER BY tecnica.IdTecnica;", (error, result, fields) => {
-        if (error) throw error;
-        workersQuery = result;
-        res.json(workersQuery);
+        if (error){
+            res.json("false");
+            throw error;
+        }else{
+            workersQuery = result;
+            res.json(workersQuery)
+        }
+        ;
     })
 });
 
@@ -228,17 +233,6 @@ router.get("/clientList", (req, res, err) => {
     con.query(query, (error, result, fields) => {
         if (error) return res.json("Hubo un error al traer las empresas");
         return res.json(result);
-    })
-});
-
-router.get("/especialistaList/:id", (req, res, err) => {
-    let query = "SELECT NombreE FROM especialista WHERE IdEspecialista="+req.params.id;
-    con.query(query, (error, result) => {
-        if(error){
-            return res.json("false");
-        }else{
-            return res.json(result);
-        }
     })
 });
 
@@ -1120,6 +1114,21 @@ router.get('/getInfoAssignment/:id/:date', (req, res, err) => {
         if (error){
             console.log("ERROR GET INFO ASSIG: ", error);
             return res.json("Hubo un error");
+        }else{
+            res.json(result);
+        }
+       
+    })
+})
+
+// Trae info asignacion dado solo el id
+router.get('/getInfoAssignment/:id', (req, res, err) => {
+    let id = req.params.id;
+    let query = " SELECT * FROM asignacion WHERE IdAsignacion="+id+";";
+    //console.log(query);
+    con.query(query, (error, result) => {
+        if (error){
+            return res.json("false");
         }else{
             res.json(result);
         }
