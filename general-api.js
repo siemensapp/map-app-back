@@ -512,12 +512,14 @@ router.post("/sendMailEdit/", (req, res, err) => {
     var queryNombreEmpresa = "SELECT NombreEmpresa FROM empresa WHERE IdEmpresa="+IdEmpresa+";";
     con.query(queryMailEspecialista, (error, result) => {
         if(error){
+            console.log("error en query");
             res.json("false");
         }else{
             emailEspecialista = result[0]['email'];
             /* Obtiene el email del especialista, envia el correo*/
             con.query(queryNombreEmpresa, (error, result) => {
                 if(error){
+                    console.log("error en query 2");
                     res.json("false");
                 }else{
                     NombreEmpresa = result[0]['NombreEmpresa'];
@@ -605,6 +607,7 @@ router.post("/sendMailEdit/", (req, res, err) => {
                     }
                         transporter.sendMail(HelperOptions, function(err,res){
                             if (err){
+                                console.log("error sen mail");
                                 //console.log(err);
                                 //console.log("No se envio**********");
                             }else{
