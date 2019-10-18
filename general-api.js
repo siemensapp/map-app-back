@@ -557,7 +557,7 @@ router.post("/sendMailCertification", (req, res, err) => {
             subject: "Vencimiento certificados",
             text:"Se han vencido los certificados",
             html:
-                "<h2>Vencimiento Certificaos</h2>"+
+                "<h2>Vencimiento Certificados</h2>"+
                 MensajeA0+
                 MensajeA15+
                 MensajeM0+
@@ -1523,6 +1523,7 @@ router.post("/deleteAssignment/", (req, res, err) => {
 //Edita una asignacion dada
 router.post("/updateAssignment/", (req, res, err) =>{
     let body = req.body;
+    let checkQuery = "SELECT * FROM asignacion WHERE IdEspecialista = " + body.IdEspecialista + " AND ('" + body.FechaInicio + "' BETWEEN FechaInicio AND FechaFin OR '" + body.FechaFin + "' BETWEEN FechaInicio AND FechaFin)";
     let query = 'UPDATE asignacion SET IdEspecialista='+body.IdEspecialista+' , '+
                                         'IdStatus='+body.IdStatus+', '+
                                         'PCFSV="'+body.PCFSV+'", '+
@@ -1541,15 +1542,21 @@ router.post("/updateAssignment/", (req, res, err) =>{
                                         'Descripcion="'+body.Descripcion+' " WHERE IdAsignacion='+body.IdAsignacion+ ';';
                                         //console.log("QUERY");
                                         //console.log(query);
-    con.query(query, (error, result) => {
-        if (error){ 
-            //console.log(error);
-            return res.json("false");
-        }else{
-            //console.log("Query enviado")
-            return res.json("true");
-        }
-    })
+    
+    con.query(checkQuery, (error, result) => {
+        if (error) return res.json("false checkquery");
+        if (result.length !== 0) return res.json("existe");
+        con.query(query, (error, result) => {
+            if (error){ 
+                //console.log(error);
+                return res.json("false");
+            }else{
+                //console.log("Query enviado")
+                return res.json("true");
+            }
+        })
+    });                       
+    
 })
 
 
