@@ -381,7 +381,7 @@ router.post("/sendMailCertification", (req, res, err) => {
                 contador = Object.keys (trabajadores).length;
                 count = Object.keys(administradores).length;
                 cadena = Object.keys(data).length;
-                console.log(cadena);
+                //console.log(cadena);
                 for(i=0;i<contador;i++){
     
                     for(j=0;j<cadena;j++){
@@ -436,10 +436,10 @@ router.post("/sendMailCertification", (req, res, err) => {
                 for (k=0;k<count;k++){
                     destinatarios=destinatarios+administradores[k]['email']+',';
                 }
-                console.log(Ealturas0.slice(0,-1));
-                console.log(Ealturas15);
-                console.log(Emanejo0);
-                console.log(Emanejo15);
+                //console.log(Ealturas0.slice(0,-1));
+                //console.log(Ealturas15);
+                //console.log(Emanejo0);
+                //console.log(Emanejo15);
                 
     
     
@@ -455,15 +455,15 @@ router.post("/sendMailCertification", (req, res, err) => {
         let promesaTres = new Promise ((resolve,reject)=>{
         if(Ealturas0!=''){
         var queryActualizarA0 = "UPDATE especialista SET ConfirmacionA0 = 1 WHERE NombreE IN "+"("+Ealturas0.slice(0,-1)+")"+";";
-        console.log(queryActualizarA0);
+        //console.log(queryActualizarA0);
         con.query(queryActualizarA0, (error, result8) => {
             if(error){
                 console.log(error);
-                console.log('Error en el query *******************************');
+                //console.log('Error en el query *******************************');
                 reject();
             }else{
                 resolve(result8);
-                console.log('lo hice **************************************Actualice');
+                //console.log('lo hice **************************************Actualice');
     
             }
     
@@ -483,33 +483,33 @@ router.post("/sendMailCertification", (req, res, err) => {
 
         if(Ealturas15!=''){
             var queryActualizarA15 = "UPDATE especialista SET ConfirmacionA15 = 1 WHERE NombreE IN "+"("+Ealturas15.slice(0,-1)+")"+";";
-            console.log(queryActualizarA15);
+            //console.log(queryActualizarA15);
             con.query(queryActualizarA15, (error, result8) => {
                 if(error){
                     console.log(error);
-                    console.log('Error en el query *******************************');
+                    //console.log('Error en el query *******************************');
                 }else{
-                    console.log('lo hice **************************************Actualice');
+                    //console.log('lo hice **************************************Actualice');
         
                 }
         
             })
         }
         else{
-            console.log("lista vacia");
+            //console.log("lista vacia");
         }
     }).then(()=>{
 
-        console.log("SIGUIENTE 1*********************************")
+        //console.log("SIGUIENTE 1*********************************")
         if(Emanejo0!=''){
             var queryActualizarM0 = "UPDATE especialista SET ConfirmacionM0 = 1 WHERE NombreE IN "+"("+Emanejo0.slice(0,-1)+")"+";";
             console.log(queryActualizarM0);
             con.query(queryActualizarM0, (error, result8) => {
                 if(error){
                     console.log(error);
-                    console.log('Error en el query *******************************');
+                    //console.log('Error en el query *******************************');
                 }else{
-                    console.log('lo hice **************************************Actualice');
+                    //console.log('lo hice **************************************Actualice');
         
                 }
         
@@ -1542,10 +1542,7 @@ router.post("/updateAssignment/", (req, res, err) =>{
                                         'Descripcion="'+body.Descripcion+' " WHERE IdAsignacion='+body.IdAsignacion+ ';';
                                         //console.log("QUERY");
                                         //console.log(query);
-    
-    con.query(checkQuery, (error, result) => {
-        if (error) return res.json("false checkquery");
-        if (result.length !== 0) return res.json("existe");
+    if(body.sameEspecialista){
         con.query(query, (error, result) => {
             if (error){ 
                 //console.log(error);
@@ -1554,8 +1551,23 @@ router.post("/updateAssignment/", (req, res, err) =>{
                 //console.log("Query enviado")
                 return res.json("true");
             }
-        })
-    });                       
+        });
+    }else{
+        con.query(checkQuery, (error, result) => {
+            if (error) return res.json("false checkquery");
+            if (result.length !== 0) return res.json("existe");
+            con.query(query, (error, result) => {
+                if (error){ 
+                    //console.log(error);
+                    return res.json("false");
+                }else{
+                    //console.log("Query enviado")
+                    return res.json("true");
+                }
+            })
+        });
+    }
+                           
     
 })
 
@@ -1836,7 +1848,7 @@ router.post("/updateEquipment/:serial", (req, res) => {
 
 router.get("/getReportByAssignment/:id", (req, res) => {
     let IdAsignacion = req.params.id;
-    console.log("ASIGNACION: ",IdAsignacion);
+    //console.log("ASIGNACION: ",IdAsignacion);
     let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio FROM reportegeneral AS RG INNER JOIN empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN asignacion ON RG.IdAsignacion=asignacion.IdAsignacion INNER JOIN especialista ON asignacion.IdEspecialista=especialista.IdEspecialista INNER JOIN tecnica AS T ON especialista.IdTecnica=T.IdTecnica WHERE RG.IdAsignacion=" + IdAsignacion + ";";
 
     con.query(query, (error, result) => {
