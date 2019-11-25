@@ -187,6 +187,20 @@ router.get("/workers/:date", (req, res, err) => {
         //console.log("Done with get")
 });
 
+
+//Trae todos los PM
+router.get('/PM',(req, res, err) =>{
+    let PMquery = "SELECT * FROM projectManager;";
+    con.query(PMquery, (error, result, fields) => {
+        if(error){
+            res.json("false");
+            throw err;
+        }else{
+            res.json(result);
+        }
+    })
+});
+
 // Endpoint para probar el middleware del token
 router.get('/test', verifyToken, (req, res) => {
     res.json("Prueba exitosa");
@@ -243,7 +257,7 @@ router.post("/addCliente", (req, res, err) => {
     let promesaDuplicado = new Promise((resolve, reject) => {
         con.query(queryDuplicado,(error, result) => {
             if(error){
-                console.log("error al buscar duplicado");
+                //console.log("error al buscar duplicado");
                 res.json("false");
                 reject();
             }else{
@@ -259,10 +273,10 @@ router.post("/addCliente", (req, res, err) => {
             let queryAdd = "INSERT INTO empresa (NombreEmpresa) VALUES ('"+req.body.NombreEmpresa+"');";
             con.query(queryAdd, (error, result) => {
                 if(error){
-                    console,log("error al insertar empresa");
+                    //console,log("error al insertar empresa");
                     res.json("false");
                 }else{
-                    console.log("empresa registrada");
+                    //console.log("empresa registrada");
                     res.json("true");
                 }
             })
@@ -381,7 +395,7 @@ router.post("/sendMailCertification", (req, res, err) => {
                 contador = Object.keys (trabajadores).length;
                 count = Object.keys(administradores).length;
                 cadena = Object.keys(data).length;
-                console.log(cadena);
+                //console.log(cadena);
                 for(i=0;i<contador;i++){
     
                     for(j=0;j<cadena;j++){
@@ -436,10 +450,10 @@ router.post("/sendMailCertification", (req, res, err) => {
                 for (k=0;k<count;k++){
                     destinatarios=destinatarios+administradores[k]['email']+',';
                 }
-                console.log(Ealturas0.slice(0,-1));
-                console.log(Ealturas15);
-                console.log(Emanejo0);
-                console.log(Emanejo15);
+                //console.log(Ealturas0.slice(0,-1));
+                //console.log(Ealturas15);
+                //console.log(Emanejo0);
+                //console.log(Emanejo15);
                 
     
     
@@ -455,22 +469,22 @@ router.post("/sendMailCertification", (req, res, err) => {
         let promesaTres = new Promise ((resolve,reject)=>{
         if(Ealturas0!=''){
         var queryActualizarA0 = "UPDATE especialista SET ConfirmacionA0 = 1 WHERE NombreE IN "+"("+Ealturas0.slice(0,-1)+")"+";";
-        console.log(queryActualizarA0);
+        //console.log(queryActualizarA0);
         con.query(queryActualizarA0, (error, result8) => {
             if(error){
-                console.log(error);
-                console.log('Error en el query *******************************');
+                //console.log(error);
+                //console.log('Error en el query *******************************');
                 reject();
             }else{
                 resolve(result8);
-                console.log('lo hice **************************************Actualice');
+                //console.log('lo hice **************************************Actualice');
     
             }
     
         })
     }
     else{
-        console.log("lista vacia");
+        //console.log("lista vacia");
     }
     })
 
@@ -483,60 +497,60 @@ router.post("/sendMailCertification", (req, res, err) => {
 
         if(Ealturas15!=''){
             var queryActualizarA15 = "UPDATE especialista SET ConfirmacionA15 = 1 WHERE NombreE IN "+"("+Ealturas15.slice(0,-1)+")"+";";
-            console.log(queryActualizarA15);
+            //console.log(queryActualizarA15);
             con.query(queryActualizarA15, (error, result8) => {
                 if(error){
-                    console.log(error);
-                    console.log('Error en el query *******************************');
+                    //console.log(error);
+                    //console.log('Error en el query *******************************');
                 }else{
-                    console.log('lo hice **************************************Actualice');
+                    //console.log('lo hice **************************************Actualice');
         
                 }
         
             })
         }
         else{
-            console.log("lista vacia");
+            //console.log("lista vacia");
         }
     }).then(()=>{
 
-        console.log("SIGUIENTE 1*********************************")
+        //console.log("SIGUIENTE 1*********************************")
         if(Emanejo0!=''){
             var queryActualizarM0 = "UPDATE especialista SET ConfirmacionM0 = 1 WHERE NombreE IN "+"("+Emanejo0.slice(0,-1)+")"+";";
-            console.log(queryActualizarM0);
+            //console.log(queryActualizarM0);
             con.query(queryActualizarM0, (error, result8) => {
                 if(error){
-                    console.log(error);
-                    console.log('Error en el query *******************************');
+                    //console.log(error);
+                   // console.log('Error en el query *******************************');
                 }else{
-                    console.log('lo hice **************************************Actualice');
+                    //console.log('lo hice **************************************Actualice');
         
                 }
         
             })
         }
         else{
-            console.log("lista vacia");
+            //console.log("lista vacia");
         }
     }).then(()=>{
 
-        console.log("SIGUIENTE 2*********************************")
+        //console.log("SIGUIENTE 2*********************************")
         if(Emanejo15!=''){
             var queryActualizarM15 = "UPDATE especialista SET ConfirmacionM15 = 1 WHERE NombreE IN "+"("+Emanejo15.slice(0,-1)+")"+";";
-            console.log(queryActualizarM15);
+            //console.log(queryActualizarM15);
             con.query(queryActualizarM15, (error, result8) => {
                 if(error){
-                    console.log(error);
-                    console.log('Error en el query *******************************');
+                    //console.log(error);
+                    //console.log('Error en el query *******************************');
                 }else{
-                    console.log('lo hice **************************************Actualice');
+                    //console.log('lo hice **************************************Actualice');
         
                 }
         
             })
         }
         else{
-            console.log("lista vacia");
+            //console.log("lista vacia");
         }
     }).then(()=>{
         let transporter = nodemailer.createTransport({
@@ -567,13 +581,13 @@ router.post("/sendMailCertification", (req, res, err) => {
         }
 
         if(Ealturas0!=''||Ealturas15!=''||Emanejo0!=''||Emanejo15!=''){
-            console.log("*************ENTRE A ENVAR CORREOS******************")
+            //console.log("*************ENTRE A ENVAR CORREOS******************")
             transporter.sendMail(HelperOptions, function(err,res){
                 if (err){
-                    console.log(err);
-                    console.log("No se envio**********");
+                    //console.log(err);
+                    //console.log("No se envio**********");
                 }else{
-                    console.log("Si se envio");
+                    //console.log("Si se envio");
                 }
             });
         }
@@ -766,15 +780,15 @@ router.post("/sendMailEdit/", (req, res, err) => {
     var queryNombreEmpresa = "SELECT NombreEmpresa FROM empresa WHERE IdEmpresa="+IdEmpresa+";";
     con.query(queryMailEspecialista, (error, result) => {
         if(error){
-            console.log("error en query");
+            //console.log("error en query");
             res.json("false");
         }else{
             emailEspecialista = result[0]['email'];
             /* Obtiene el email del especialista, envia el correo*/
-            console.log(queryNombreEmpresa);
+            //console.log(queryNombreEmpresa);
             con.query(queryNombreEmpresa, (error, result) => {
                 if(error){
-                    console.log("error en query 2");
+                    //console.log("error en query 2");
                     res.json("false");
                 }else{
                     NombreEmpresa = result[0]['NombreEmpresa'];
@@ -862,7 +876,7 @@ router.post("/sendMailEdit/", (req, res, err) => {
                     }
                         transporter.sendMail(HelperOptions, function(err,res){
                             if (err){
-                                console.log("error sen mail");
+                                //console.log("error sen mail");
                                 //console.log(err);
                                 //console.log("No se envio**********");
                             }else{
@@ -1062,9 +1076,9 @@ router.post("/editTarifas/", (req, res, err) => {
     let NombreT = data.NombreT;
     let CostoServicio = data.CostoServicio;
     let CostoViaje = data.CostoViaje;
-    console.log("NombreT",NombreT);
-    console.log("CostoServicio", CostoServicio);
-    console.log("CostoViaje", CostoViaje);
+    //console.log("NombreT",NombreT);
+    //console.log("CostoServicio", CostoServicio);
+    //console.log("CostoViaje", CostoViaje);
     let query;
     if(CostoServicio == ""){
         query = "UPDATE tecnica SET CostoViaje="+CostoViaje+" WHERE NombreT='"+NombreT+"';";
@@ -1132,12 +1146,12 @@ router.post("/createWorker", (req, res, err) => {
     var queryDuplicado = "SELECT CedulaCiudadania FROM especialista WHERE IdEspecialista="+IdEspecialista+";";
     con.query(queryDuplicado, (error, result) => {
         if(error){
-            console.log("Error consultando duplicado ID");
+            //console.log("Error consultando duplicado ID");
         }else{
-            console.log("Consulta hecha duplicado");
+            //console.log("Consulta hecha duplicado");
             if(result.length == 0){
                 res.json("true");
-                console.log("No hay duplicado ID");
+                //console.log("No hay duplicado ID");
                 var query = "INSERT INTO especialista(IdEspecialista, CeCo, NombreE, TarjetaIngresoArgos, Celular, GID, CedulaCiudadania, LugarExpedicion, FechaNacimiento, IdTecnica, email) VALUES(" + IdEspecialista + ",'" + CeCo + "','" + NombreE + "','" + TarjetaIngresoArgos + "','" + Celular + "','" + GID + "','" + CedulaCiudadania + "','" + LugarExpedicion + "','" + FechaNacimiento + "'," + IdTecnica+ ","+email+")";
                 
                 //Crea el archivo de vacunas si el campo vacunas tiene un archivo
@@ -1235,21 +1249,21 @@ router.post("/createWorker", (req, res, err) => {
 
                 con.query(query, async (error, result, fields) => {
                     if (data.Foto) {
-                        console.log(" ENTRA A QUERY ");
-                        console.log(error);
-                        console.log(" MOSTRO ERROR ")
+                        //console.log(" ENTRA A QUERY ");
+                        //console.log(error);
+                        //console.log(" MOSTRO ERROR ")
                         auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
                             res.json(imageResult)
                         })
                        
                     } else  res.json((error)? "false" : "true");
-                    console.log(error);
-                    console.log("SALE");
+                    //console.log(error);
+                    //console.log("SALE");
 
 
                 })//no se toca
             }else{
-                console.log("ERROR ID duplicado");
+                //console.log("ERROR ID duplicado");
                 res.json("duplicated");
             }
         }
@@ -1351,7 +1365,7 @@ router.post("/editWorker", (req, res, err) => {
          res.json(CertificadoAResultMD);
         })*/
         
-        console.log(query3);
+        //console.log(query3);
         con.query(query3, async (error, result, fields) => {
             if (data.Foto) {
                 auxImage.saveImage(imagePath, base64Image).then((imageResult) => {
@@ -1394,7 +1408,7 @@ router.get('/getInfoAssignment/:id/:date', (req, res, err) => {
     // let query = "SELECT * from Asignacion INNER JOIN Especialista ON Especialista.IdEspecialista=Asignacion.IdEspecialista WHERE Especialista.CedulaCiudadania='10236';";
     con.query(query, (error, result) => {
         if (error){
-            console.log("ERROR GET INFO ASSIG: ", error);
+            //console.log("ERROR GET INFO ASSIG: ", error);
             return res.json("Hubo un error");
         }else{
             res.json(result);
@@ -1431,8 +1445,8 @@ router.post("/deleteAssignment/", (req, res, err) => {
     //Diferencia entre Desde y FechaInicio
     let diffDate1 = Math.abs(desde.getTime() - fechaInicio.getTime());
     let diffDays1 = Math.ceil(diffDate1 / (1000 * 60 * 60 * 24));
-    console.log("SUJETO", body.SujetoCancelacion);
-    console.log("RAZON", body.RazonCancelacion);
+    //console.log("SUJETO", body.SujetoCancelacion);
+    //console.log("RAZON", body.RazonCancelacion);
 
     //Diferencia entre Hasta y FechaFin
     let diffDate2 = Math.abs(fechaFin.getTime() - hasta.getTime());
@@ -1504,7 +1518,7 @@ router.post("/deleteAssignment/", (req, res, err) => {
         query = "DELETE FROM asignacion WHERE IdAsignacion=" + body.IdAsignacion + "";
         con.query(query, (error, result, fields) => {
             if (error){
-                console.log("ERROR EN PRIMER QUERY DELETE");
+                //console.log("ERROR EN PRIMER QUERY DELETE");
             } //console.log('Error eliminacion 1ra parte:', error);
             query2 = "INSERT INTO asignacioneliminada (PCFSV, IdEspecialista, IdStatus, IdAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, SujetoCancelacion, RazonCancelacion) VALUES('" + body.PCFSV + "', " + body.IdEspecialista + ", " + body.IdStatus + ", " + body.IdAsignacion + ", '" + body.IdEmpresa + "', '" + body.NombrePlanta + "', '" + body.CiudadPlanta + "', '" + desde.toISOString().split("T")[0] + "', '" + hasta.toISOString().split("T")[0] + "', '" + body.CoordenadasSitio + "', '', '" + body.NombreSitio + "', '" + body.NombreContacto + "', '" + body.TelefonoContacto + "', '" + body.EmailContacto + "', '" + body.Descripcion + "' ,'" + body.SujetoCancelacion + "', '" + body.RazonCancelacion + "');";
             //console.log(query2);
@@ -1542,10 +1556,7 @@ router.post("/updateAssignment/", (req, res, err) =>{
                                         'Descripcion="'+body.Descripcion+' " WHERE IdAsignacion='+body.IdAsignacion+ ';';
                                         //console.log("QUERY");
                                         //console.log(query);
-    
-    con.query(checkQuery, (error, result) => {
-        if (error) return res.json("false checkquery");
-        if (result.length !== 0) return res.json("existe");
+    if(body.sameEspecialista){
         con.query(query, (error, result) => {
             if (error){ 
                 //console.log(error);
@@ -1554,8 +1565,23 @@ router.post("/updateAssignment/", (req, res, err) =>{
                 //console.log("Query enviado")
                 return res.json("true");
             }
-        })
-    });                       
+        });
+    }else{
+        con.query(checkQuery, (error, result) => {
+            if (error) return res.json("false checkquery");
+            if (result.length !== 0) return res.json("existe");
+            con.query(query, (error, result) => {
+                if (error){ 
+                    //console.log(error);
+                    return res.json("false");
+                }else{
+                    //console.log("Query enviado")
+                    return res.json("true");
+                }
+            })
+        });
+    }
+                           
     
 })
 
@@ -1836,7 +1862,7 @@ router.post("/updateEquipment/:serial", (req, res) => {
 
 router.get("/getReportByAssignment/:id", (req, res) => {
     let IdAsignacion = req.params.id;
-    console.log("ASIGNACION: ",IdAsignacion);
+    //console.log("ASIGNACION: ",IdAsignacion);
     let query = "SELECT RG.Consecutivo, RG.FechaEnvio, RG.NombreContacto, RG.NombreColaborador, RG.NombreProyecto, RG.DescripcionAlcance, RG.Marca, RG.DenominacionInterna, RG.NumeroSerial, RG.CaracteristicasTecnicas, RG.EstadoInicial, RG.ActividadesRealizadas, RG.Conclusiones, RG.RepuestosSugeridos, RG.ActividadesPendientes, RG.HojaTiempo, RG.FirmaEmisor, RG.FirmaCliente, RG.Adjuntos, E.NombreEmpresa, T.CostoViaje, T.CostoServicio FROM reportegeneral AS RG INNER JOIN empresa AS E ON RG.IdEmpresa=E.IdEmpresa INNER JOIN asignacion ON RG.IdAsignacion=asignacion.IdAsignacion INNER JOIN especialista ON asignacion.IdEspecialista=especialista.IdEspecialista INNER JOIN tecnica AS T ON especialista.IdTecnica=T.IdTecnica WHERE RG.IdAsignacion=" + IdAsignacion + ";";
 
     con.query(query, (error, result) => {
