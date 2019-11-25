@@ -1027,6 +1027,21 @@ router.post("/sendMailDelete", (req, res, err) => {
     })
 })
 
+//Registra un nuevo PM
+router.post('/newPM', (req, res, err) => {
+    let name = req.body.name;
+    let email = req.body.email;
+    let query = "INSERT INTO projectManager (NombrePM, emailPM) values('" + name + "','" + email+"');";
+    //console.log(query);
+    con.query(query, (error, result) => {
+        if (error) return res.json("false");
+        else {
+            res.json("true");
+        }
+    })
+})
+
+
 // Borra usuario dado un id y tambien sus asignaciones
 //modificado para borrar por nombre y no por id, workerId = NombreE
 router.get("/deleteWorker/:workerId", (req, res, err) => {
