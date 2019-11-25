@@ -310,6 +310,7 @@ router.post("/setAssignment", (req, res, err) => {
         let NombreSitio = data.NombreSitio;
         let PCFSV = data.PCFSV;
         let IdEmpresa;
+        let Idpm = data.IdPM;
 
         let tipoServicio;
         if(PCFSV == 'P'){tipoServicio = 'Preventivo planeado'}
@@ -329,7 +330,7 @@ router.post("/setAssignment", (req, res, err) => {
             }else{
                 //console.log("SEGUNDO QUERY ASSIGNMENT");
                 IdEmpresa = result[0]['IdEmpresa'];
-                let insertQuery = "INSERT INTO asignacion (PCFSV, IdEspecialista, IdStatus, StatusAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion) VALUES('" + PCFSV + "', " + IdEspecialista + "," + IdStatus + ", 0, " + IdEmpresa + ", '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "')";
+                let insertQuery = "INSERT INTO asignacion (PCFSV, IdEspecialista, IdStatus, StatusAsignacion, IdEmpresa, NombrePlanta, CiudadPlanta, FechaInicio, FechaFin, TiempoInicio, TiempoFinal, CoordenadasSitio, CoordenadasEspecialista, NombreSitio , NombreContacto, TelefonoContacto, EmailContacto, Descripcion, IdPM) VALUES('" + PCFSV + "', " + IdEspecialista + "," + IdStatus + ", 0, " + IdEmpresa + ", '" + NombrePlanta + "', '" + CiudadPlanta + "', '" + FechaInicio + "', '" + FechaFin + "', null, null, '" + CoordenadasSitio + "', '', '" + NombreSitio + "', '" + NombreContacto + "', '" + TelefonoContacto + "', '" + EmailContacto + "', '" + Descripcion + "', '" + Idpm+"')";
                 con.query(insertQuery, (error, result) => {
                     //console.log("TERCER QUERY ASSIGNMENT");
                     //console.log(error);
@@ -1037,6 +1038,18 @@ router.post('/newPM', (req, res, err) => {
         if (error) return res.json("false");
         else {
             res.json("true");
+        }
+    })
+})
+
+
+router.get('/getPM/:NombrePM', (req, res, err) => {
+    let query = "SELECT * FROM projectManager WHERE NombrePM='"+req.params.NombrePM+"';";
+    console.log(query);
+    con.query(query, (error, result) => {
+        if (error) return res.json("false");
+        else {
+            res.json(result);
         }
     })
 })
