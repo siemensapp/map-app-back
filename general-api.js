@@ -1581,6 +1581,7 @@ router.post("/updateAssignment/", (req, res, err) =>{
                                         'NombreContacto="'+body.NombreContacto+'", '+
                                         'TelefonoContacto="'+body.TelefonoContacto+'", '+
                                         'EmailContacto="'+body.EmailContacto+'", '+
+                                        'IdPM="'+body.IdPM+'", '+
                                         'Descripcion="'+body.Descripcion+' " WHERE IdAsignacion='+body.IdAsignacion+ ';';
                                         //console.log("QUERY");
                                         //console.log(query);
